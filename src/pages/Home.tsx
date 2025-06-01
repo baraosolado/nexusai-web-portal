@@ -160,15 +160,6 @@ const Home: React.FC = () => {
               </div>
             ))}
           </div>
-          
-          <div className="text-center">
-            <Link to="/agentes">
-              <Button className="nexus-button text-lg px-8 py-4 group">
-                Ver Todos os Agentes
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
