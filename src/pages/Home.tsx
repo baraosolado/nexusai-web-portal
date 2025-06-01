@@ -48,19 +48,21 @@ const Home: React.FC = () => {
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute bottom-20 left-1/4 w-48 h-48 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
-          <div className="absolute bottom-32 right-1/4 w-32 h-32 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
         </div>
         
-        {/* Logo no topo */}
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
+        
+        {/* Logo */}
+        <div className="relative mb-12">
           <Link to="/" className="flex items-center justify-center space-x-3 hover-scale">
             <span className="text-3xl font-bold gradient-text">Solandox</span>
           </Link>
         </div>
         
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-20 pb-10">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"></div>
           {/* Left content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
@@ -84,8 +86,8 @@ const Home: React.FC = () => {
           </div>
 
           {/* Right content - 3D Robot */}
-          <div className="relative h-[350px] lg:h-[400px] overflow-hidden">
-            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full object-contain" />
+          <div className="relative h-[400px] lg:h-[500px]">
+            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
           </div>
         </div>
       </section>
