@@ -402,7 +402,7 @@ const Home: React.FC = () => {
           {/* Right content - 3D Robot */}
           <div className="relative h-[500px] lg:h-[600px] flex items-end justify-center lg:justify-end">
             <div className="relative w-full max-w-[600px] h-[450px] lg:h-[550px]">
-              <div className="absolute inset-0 -bottom-4 lg:-bottom-6">
+              <div className="absolute inset-0 bottom-0">
                 <SplineScene 
                   scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
                   className="w-full h-full object-contain" 
