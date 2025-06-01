@@ -5,7 +5,6 @@ import { ArrowRight, Brain, Zap, Target, Shield, Users, TrendingUp } from 'lucid
 import { SplineScene } from '@/components/ui/splite';
 import { Spotlight } from '@/components/ui/spotlight';
 import Layout from '@/components/layout/Layout';
-
 const Home: React.FC = () => {
   const benefits = [{
     icon: Brain,
@@ -86,27 +85,13 @@ const Home: React.FC = () => {
 
           {/* Right content - 3D Robot */}
           <div className="relative h-[600px] lg:h-[700px]">
-            <SplineScene 
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-              className="w-full h-full"
-            />
+            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-nexus-light/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => <div key={index} className="text-center animate-fade-in">
-                <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-400">{stat.label}</div>
-              </div>)}
-          </div>
-        </div>
-      </section>
+      
 
       {/* Benefits Section */}
       <section className="py-20">
@@ -213,5 +198,4 @@ const Home: React.FC = () => {
       </section>
     </Layout>;
 };
-
 export default Home;
