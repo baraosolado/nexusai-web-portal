@@ -498,7 +498,7 @@ const Home: React.FC = () => {
                 <p className="text-gray-300 text-sm leading-relaxed mb-6 flex-grow">{agent.description}</p>
                 <Button 
                   onClick={() => handleTestAgent(agent.name, agent.type)}
-                  className="w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300 mt-auto"
+                  className="agent-button agent-button-ripple w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300 mt-auto"
                 >
                   TESTAR AGORA
                 </Button>
