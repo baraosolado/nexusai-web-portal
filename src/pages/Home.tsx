@@ -66,6 +66,8 @@ const Home: React.FC = () => {
         source: 'portfolio_website'
       };
 
+      console.log('Enviando dados para webhook:', webhookData);
+
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
         headers: {
@@ -74,31 +76,48 @@ const Home: React.FC = () => {
         body: JSON.stringify(webhookData)
       });
 
+      console.log('Status da resposta:', response.status);
+      console.log('Headers da resposta:', response.headers);
+
       if (response.ok) {
         // Processar resposta do webhook
-        const webhookResponse = await response.json();
-        console.log('Resposta do webhook:', webhookResponse);
+        const responseText = await response.text();
+        console.log('Resposta bruta do webhook:', responseText);
+        
+        let webhookResponse;
+        try {
+          webhookResponse = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Erro ao fazer parse do JSON:', parseError);
+          throw new Error('Resposta inválida do servidor');
+        }
+        
+        console.log('Resposta parseada do webhook:', webhookResponse);
         
         // Verificar se há uma resposta do agente no webhook
         let agentMessage = "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
         
         // Verificar diferentes formatos de resposta
-        if (webhookResponse.agent_response) {
-          agentMessage = webhookResponse.agent_response;
-        } else if (webhookResponse.message) {
-          agentMessage = webhookResponse.message;
-        } else if (webhookResponse.response) {
-          agentMessage = webhookResponse.response;
-        } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
-          // Caso seja um array como retornado: [{"output": "mensagem"}]
-          const firstItem = webhookResponse[0];
-          if (firstItem && firstItem.output) {
-            agentMessage = firstItem.output;
+        if (webhookResponse && typeof webhookResponse === 'object') {
+          if (webhookResponse.agent_response) {
+            agentMessage = webhookResponse.agent_response;
+          } else if (webhookResponse.message) {
+            agentMessage = webhookResponse.message;
+          } else if (webhookResponse.response) {
+            agentMessage = webhookResponse.response;
+          } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
+            // Caso seja um array como retornado: [{"output": "mensagem"}]
+            const firstItem = webhookResponse[0];
+            if (firstItem && typeof firstItem === 'object' && firstItem.output) {
+              agentMessage = firstItem.output;
+            }
+          } else if (webhookResponse.output) {
+            // Caso seja um objeto direto com output
+            agentMessage = webhookResponse.output;
           }
-        } else if (webhookResponse.output) {
-          // Caso seja um objeto direto com output
-          agentMessage = webhookResponse.output;
         }
+        
+        console.log('Mensagem final do agente:', agentMessage);
         
         // Adicionar resposta do bot
         setTimeout(() => {
@@ -110,8 +129,9 @@ const Home: React.FC = () => {
           }]);
         }, 1000);
       } else {
-        console.error('Erro na resposta do webhook:', response.status, response.statusText);
-        throw new Error('Falha na requisição');
+        const errorText = await response.text();
+        console.error('Erro na resposta do webhook:', response.status, response.statusText, errorText);
+        throw new Error(`Falha na requisição: ${response.status}`);
       }
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
