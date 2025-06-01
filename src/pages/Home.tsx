@@ -367,7 +367,7 @@ const Home: React.FC = () => {
   }];
   return <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
@@ -377,13 +377,13 @@ const Home: React.FC = () => {
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
 
         {/* Logo */}
-        <div className="relative mb-12">
+        <div className="relative mb-6">
           <Link to="/" className="flex items-center justify-center space-x-3 hover-scale">
             <span className="text-3xl font-bold gradient-text">Solandox</span>
           </Link>
         </div>
 
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[60vh]">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center flex-1">
           {/* Left content */}
           <div className="text-center lg:text-left lg:pr-8">
             <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 animate-fade-in leading-tight">
