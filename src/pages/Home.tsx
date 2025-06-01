@@ -409,14 +409,12 @@ const Home: React.FC = () => {
           {/* Right content - 3D Robot */}
           <div className="relative h-[400px] lg:h-[500px] flex items-end justify-center lg:justify-end">
             <div className="relative w-full max-w-[450px] h-[350px] lg:h-[450px]">
-              <div className="absolute inset-0 bottom-4 lg:bottom-8">
+              <div className="absolute inset-0 bottom-0">
                 <SplineScene 
                   scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
                   className="w-full h-full object-contain" 
                 />
               </div>
-              {/* Gradiente sutil para melhor integração */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-nexus-dark/50 to-transparent pointer-events-none"></div>
             </div>
           </div>
         </div>
