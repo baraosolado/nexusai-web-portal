@@ -197,27 +197,8 @@ const Home: React.FC = () => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          channelCount: 1, // Mono audio para reduzir tamanho
-          sampleRate: 16000, // Sample rate menor para reduzir tamanho
-          echoCancellation: true,
-          noiseSuppression: true
-        } 
-      });
-      
-      // Usar webm com opus para melhor compressão
-      const options = {
-        mimeType: 'audio/webm;codecs=opus',
-        audioBitsPerSecond: 32000 // Bitrate baixo para reduzir tamanho
-      };
-
-      // Fallback para navegadores que não suportam webm
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options.mimeType = 'audio/mp4';
-      }
-
-      const recorder = new MediaRecorder(stream, options);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
       const audioChunks: BlobPart[] = [];
 
       recorder.ondataavailable = (event) => {
@@ -225,22 +206,7 @@ const Home: React.FC = () => {
       };
 
       recorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
-        
-        // Limitar tamanho máximo do áudio (2MB)
-        const maxSize = 2 * 1024 * 1024; // 2MB
-        if (audioBlob.size > maxSize) {
-          setTimeout(() => {
-            setMessages(prev => [...prev, {
-              id: Date.now() + 1,
-              text: "Áudio muito longo. Tente gravar um áudio menor (máximo 30 segundos).",
-              time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-              isUser: false
-            }]);
-          }, 500);
-          return;
-        }
-
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(audioBlob);
 
         const newMessage = {
@@ -377,21 +343,6 @@ const Home: React.FC = () => {
       setMediaRecorder(recorder);
       recorder.start();
       setIsRecording(true);
-
-      // Parar gravação automaticamente após 30 segundos
-      setTimeout(() => {
-        if (recorder.state === 'recording') {
-          recorder.stop();
-          setIsRecording(false);
-          setMediaRecorder(null);
-          stream.getTracks().forEach(track => track.stop());
-          
-          toast({
-            title: 'Gravação finalizada',
-            description: 'Áudio limitado a 30 segundos para melhor qualidade.',
-          });
-        }
-      }, 30000);
     } catch (error) {
       console.error('Erro ao iniciar gravação:', error);
       toast({
