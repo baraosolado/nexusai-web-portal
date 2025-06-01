@@ -64,7 +64,7 @@ const Home: React.FC = () => {
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-20">
           {/* Left content */}
-          <div className="text-center lg:text-left"></div>
+          <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
               Transforme seu Negócio com{' '}
               <span className="gradient-text">Agentes de IA</span>
