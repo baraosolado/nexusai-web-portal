@@ -9,9 +9,6 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 // Public Pages
 import Home from "@/pages/Home";
-import Agents from "@/pages/Agents";
-import AgentDetail from "@/pages/AgentDetail";
-import Contact from "@/pages/Contact";
 import NotFound from "@/pages/NotFound";
 
 // Admin Pages
@@ -53,9 +50,6 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Home />} />
-      <Route path="/agentes" element={<Agents />} />
-      <Route path="/agentes/:slug" element={<AgentDetail />} />
-      <Route path="/contato" element={<Contact />} />
       
       {/* Legal Pages */}
       <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
