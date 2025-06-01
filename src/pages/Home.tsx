@@ -46,7 +46,7 @@ const Home: React.FC = () => {
   }];
   return <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
@@ -68,16 +68,11 @@ const Home: React.FC = () => {
               sua empresa, otimizar processos e maximizar resultados.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center animate-fade-in">
+            <div className="flex justify-center lg:justify-start animate-fade-in">
               <Link to="/agentes">
                 <Button className="nexus-button text-lg px-8 py-4 group">
                   Explorar Agentes
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link to="/contato">
-                <Button variant="outline" className="text-lg px-8 py-4 border-nexus-purple text-nexus-purple hover:bg-nexus-purple hover:text-white">
-                  Falar com Especialista
                 </Button>
               </Link>
             </div>
