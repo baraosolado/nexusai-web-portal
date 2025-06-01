@@ -148,13 +148,13 @@ const Home: React.FC = () => {
             icon: <Brain className="h-8 w-8" />,
             description: 'Otimize a prática psicológica com gestão automatizada. Este agente agenda consultas, mantém registros seguros, envia lembretes e auxilia na organização de tratamentos.'
           }].map((agent, index) => (
-              <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40">
+              <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40 flex flex-col h-full">
                 <div className="w-16 h-16 bg-gradient-to-br from-nexus-purple to-nexus-violet rounded-lg mx-auto mb-4 flex items-center justify-center text-white">
                   {agent.icon}
                 </div>
                 <h3 className="text-lg font-bold mb-4 text-white text-center">{agent.name}</h3>
-                <p className="text-gray-300 text-sm leading-relaxed mb-6">{agent.description}</p>
-                <Button className="w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300">
+                <p className="text-gray-300 text-sm leading-relaxed mb-6 flex-grow">{agent.description}</p>
+                <Button className="w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300 mt-auto">
                   TESTAR AGORA
                 </Button>
               </div>
