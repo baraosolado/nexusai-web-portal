@@ -141,14 +141,14 @@ const Home: React.FC = () => {
             description: 'Modernize a gestão educacional e comunicação escolar. Este agente gerencia matrículas, comunica com pais, acompanha desempenho de alunos e automatiza processos administrativos.'
           }, {
             name: 'Agente Terapeuta',
-            icon: <TrendingUp className="h-8 w-8" />,
+            icon: <Brain className="h-8 w-8" />,
             description: 'Apoie a prática terapêutica com agendamentos inteligentes. Este agente organiza sessões, envia lembretes, gerencia prontuários e facilita comunicação com pacientes.'
           }, {
             name: 'Agente para Psicólogos',
-            icon: <Zap className="h-8 w-8" />,
+            icon: <Brain className="h-8 w-8" />,
             description: 'Otimize a prática psicológica com gestão automatizada. Este agente agenda consultas, mantém registros seguros, envia lembretes e auxilia na organização de tratamentos.'
           }].map((agent, index) => (
-              <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40 transition-all duration-300 hover:transform hover:scale-105">
+              <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40">
                 <div className="w-16 h-16 bg-gradient-to-br from-nexus-purple to-nexus-violet rounded-lg mx-auto mb-4 flex items-center justify-center text-white">
                   {agent.icon}
                 </div>
