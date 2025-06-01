@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -140,16 +141,6 @@ export default {
 						transform: 'scale(1.05)',
 						boxShadow: '0 0 40px rgba(138, 43, 226, 0.6)'
 					}
-				},
-				'spotlight': {
-					"0%": {
-						opacity: '0',
-						transform: 'translate(-72%, -62%) scale(0.5)',
-					},
-					"100%": {
-						opacity: '1',
-						transform: 'translate(-50%,-40%) scale(1)',
-					},
 				}
 			},
 			animation: {
@@ -159,8 +150,7 @@ export default {
 				'fade-out': 'fade-out 0.3s ease-out',
 				'scale-in': 'scale-in 0.2s ease-out',
 				'slide-in-right': 'slide-in-right 0.3s ease-out',
-				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-				'spotlight': 'spotlight 2s ease .75s 1 forwards'
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'nexus-gradient': 'linear-gradient(135deg, #1a1a2e 0%, #100f1c 50%, #2a2a3e 100%)',
