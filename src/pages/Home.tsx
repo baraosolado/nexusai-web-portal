@@ -87,8 +87,10 @@ const Home: React.FC = () => {
           </div>
 
           {/* Right content - 3D Robot */}
-          <div className="relative h-[400px] lg:h-[500px]">
-            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+          <div className="relative h-[400px] lg:h-[500px] flex items-end">
+            <div className="w-full h-full pb-8">
+              <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+            </div>
           </div>
         </div>
       </section>
