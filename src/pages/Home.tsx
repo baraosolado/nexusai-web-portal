@@ -52,29 +52,29 @@ const Home: React.FC = () => {
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
           <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
         </div>
-        
+
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
-        
+
         {/* Logo */}
         <div className="relative mb-12">
           <Link to="/" className="flex items-center justify-center space-x-3 hover-scale">
             <span className="text-3xl font-bold gradient-text">Solandox</span>
           </Link>
         </div>
-        
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"></div>
+
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
               Transforme seu Negócio com{' '}
               <span className="gradient-text">Agentes de IA</span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto lg:mx-0 animate-fade-in">
               Descubra como nossos agentes de IA especializados podem revolucionar 
               sua empresa, otimizar processos e maximizar resultados.
             </p>
-            
+
             <div className="flex justify-center lg:justify-start animate-fade-in">
               <Link to="/agentes">
                 <Button className="nexus-button text-lg px-8 py-4 group">
@@ -87,7 +87,9 @@ const Home: React.FC = () => {
 
           {/* Right content - 3D Robot */}
           <div className="relative h-[400px] lg:h-[500px]">
-            <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-full">
+              <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+            </div>
           </div>
         </div>
       </section>
@@ -104,7 +106,7 @@ const Home: React.FC = () => {
               garantindo soluções precisas e eficazes.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[{
             name: 'Agente Comercial (SDR)',
@@ -182,7 +184,7 @@ const Home: React.FC = () => {
               soluções que realmente fazem a diferença no seu negócio.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => <div key={index} className="nexus-card hover-scale animate-fade-in group">
                 <div className="w-12 h-12 bg-purple-gradient rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
