@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Brain, Zap, Target, Shield, Users, TrendingUp } from 'lucide-react';
@@ -25,6 +25,16 @@ const Home: React.FC = () => {
   const [currentMessage, setCurrentMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll automático para a última mensagem
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
@@ -605,6 +615,8 @@ const Home: React.FC = () => {
                 </div>
               </div>
             ))}
+            {/* Elemento para scroll automático */}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Área de input */}
