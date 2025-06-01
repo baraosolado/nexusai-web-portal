@@ -43,16 +43,17 @@ const Home: React.FC = () => {
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || !selectedAgent) return;
 
+    const messageToSend = currentMessage;
+    setCurrentMessage('');
+
     const newMessage = {
-      id: messages.length + 1,
-      text: currentMessage,
+      id: Date.now(),
+      text: messageToSend,
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       isUser: true
     };
 
     setMessages(prev => [...prev, newMessage]);
-    const messageToSend = currentMessage;
-    setCurrentMessage('');
 
     // Chamar webhook com a mensagem do usuário
     try {
@@ -76,27 +77,39 @@ const Home: React.FC = () => {
       if (response.ok) {
         // Processar resposta do webhook
         const webhookResponse = await response.json();
+        console.log('Resposta do webhook:', webhookResponse);
         
         // Verificar se há uma resposta do agente no webhook
         const agentMessage = webhookResponse.agent_response || 
                             webhookResponse.message || 
+                            webhookResponse.response ||
                             "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
         
-        // Simular delay de processamento do agente
+        // Adicionar resposta do bot
         setTimeout(() => {
-          const botResponse = {
-            id: messages.length + 2,
+          setMessages(prev => [...prev, {
+            id: Date.now() + 1,
             text: agentMessage,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             isUser: false
-          };
-          setMessages(prev => [...prev, botResponse]);
-        }, 1500);
+          }]);
+        }, 1000);
       } else {
+        console.error('Erro na resposta do webhook:', response.status, response.statusText);
         throw new Error('Falha na requisição');
       }
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
+      // Adicionar mensagem de erro no chat
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          text: "Desculpe, ocorreu um erro. Tente novamente em alguns instantes.",
+          time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          isUser: false
+        }]);
+      }, 500);
+      
       toast({
         title: 'Erro',
         description: 'Não foi possível enviar a mensagem. Tente novamente.',
@@ -151,23 +164,35 @@ const Home: React.FC = () => {
           if (response.ok) {
             // Processar resposta do webhook para áudio
             const webhookResponse = await response.json();
+            console.log('Resposta do webhook para áudio:', webhookResponse);
             
             const agentMessage = webhookResponse.agent_response || 
                                 webhookResponse.message || 
+                                webhookResponse.response ||
                                 "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
             
             setTimeout(() => {
-              const botResponse = {
-                id: messages.length + 2,
+              setMessages(prev => [...prev, {
+                id: Date.now() + 1,
                 text: agentMessage,
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 isUser: false
-              };
-              setMessages(prev => [...prev, botResponse]);
-            }, 1500);
+              }]);
+            }, 1000);
+          } else {
+            console.error('Erro na resposta do webhook para áudio:', response.status);
           }
         } catch (error) {
           console.error('Erro ao enviar áudio:', error);
+          // Adicionar mensagem de erro para áudio
+          setTimeout(() => {
+            setMessages(prev => [...prev, {
+              id: Date.now() + 1,
+              text: "Erro ao processar áudio. Tente novamente.",
+              time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+              isUser: false
+            }]);
+          }, 500);
         }
         
         stream.getTracks().forEach(track => track.stop());
