@@ -7,29 +7,29 @@ import { Spotlight } from '@/components/ui/spotlight';
 import Layout from '@/components/layout/Layout';
 const Home: React.FC = () => {
   const benefits = [{
-    icon: Brain,
-    title: 'IA Especializada',
-    description: 'Agentes treinados especificamente para seu setor de negócio'
-  }, {
     icon: Zap,
-    title: 'Resultados Rápidos',
-    description: 'Implementação ágil com resultados visíveis em semanas'
+    title: 'Altamente Eficientes',
+    description: 'Automatize tarefas que normalmente levariam horas para serem concluídas em apenas minutos, aumentando drasticamente a produtividade.'
   }, {
     icon: Target,
-    title: 'Precisão Máxima',
-    description: 'Algoritmos otimizados para máxima eficiência e precisão'
+    title: 'Personalizáveis',
+    description: 'Adapte cada agente às necessidades específicas do seu negócio, garantindo resultados alinhados com seus objetivos e processos.'
+  }, {
+    icon: Brain,
+    title: 'Aprendizado Contínuo',
+    description: 'Nossos agentes melhoram continuamente com o uso, adaptando-se às suas necessidades e aprendendo com cada interação.'
   }, {
     icon: Shield,
-    title: 'Segurança Total',
-    description: 'Proteção avançada de dados e conformidade regulatória'
-  }, {
-    icon: Users,
-    title: 'Suporte 24/7',
-    description: 'Equipe especializada disponível sempre que precisar'
+    title: 'Segurança Avançada',
+    description: 'Projetados com protocolos de segurança de última geração para proteger seus dados e garantir a conformidade regulatória.'
   }, {
     icon: TrendingUp,
-    title: 'ROI Comprovado',
-    description: 'Retorno sobre investimento demonstrado em todos os projetos'
+    title: 'Análises Detalhadas',
+    description: 'Acompanhe o desempenho dos agentes e obtenha insights valiosos sobre processos e resultados através de painéis analíticos intuitivos.'
+  }, {
+    icon: Users,
+    title: 'Integrações Flexíveis',
+    description: 'Conecte-se facilmente com suas ferramentas existentes através de APIs intuitivas e integrações nativas com sistemas populares.'
   }];
   const stats = [{
     number: '500+',
@@ -177,7 +177,7 @@ const Home: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Por que escolher a <span className="gradient-text">Solando x</span>?
+              Por que escolher <span className="gradient-text">nossos agentes</span>?
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               Combinamos tecnologia de ponta com expertise setorial para entregar 
