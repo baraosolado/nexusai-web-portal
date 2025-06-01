@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Send, Mic, MicOff, X } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+
 const Home: React.FC = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,6 +28,13 @@ const Home: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userId, setUserId] = useState(uuidv4());
+
+  useEffect(() => {
+    if (!userId) {
+      setUserId(uuidv4());
+    }
+  }, []);
 
   // Scroll automático para a última mensagem
   const scrollToBottom = () => {
@@ -35,6 +44,21 @@ const Home: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const agentIdentifiers: { [key: string]: string } = {
+    sdr: 'agente-comercial-sdr',
+    clinicas: 'agente-clinicas',
+    imobiliarias: 'agente-imobiliarias',
+    advocacia: 'agente-advocacia',
+    financeiro: 'agente-financeiro',
+    infoprodutos: 'agente-vendedor-infoprodutos',
+    customer_service: 'agente-cs',
+    recuperador_vendas: 'agente-recuperador-de-vendas',
+    rh: 'agente-recrutamento-pessoal-rh',
+    escolas: 'agente-para-escolas-de-ensino',
+    terapeuta: 'agente-terapeuta',
+    psicologo: 'agente-para-psicologos'
+  };
 
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
@@ -48,7 +72,7 @@ const Home: React.FC = () => {
     }]);
   };
 
-  
+
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || !selectedAgent) return;
@@ -67,9 +91,13 @@ const Home: React.FC = () => {
 
     // Chamar webhook com a mensagem do usuário
     try {
+      const agentId = agentIdentifiers[selectedAgent.type] || selectedAgent.type;
+
       const webhookData = {
         agent_name: selectedAgent.name,
         agent_type: selectedAgent.type,
+        agent_id: agentId,
+        user_id: userId,
         action: 'chat_message',
         message: messageToSend,
         timestamp: new Date().toISOString(),
@@ -93,7 +121,7 @@ const Home: React.FC = () => {
         // Processar resposta do webhook
         const responseText = await response.text();
         console.log('Resposta bruta do webhook:', responseText);
-        
+
         let webhookResponse;
         try {
           webhookResponse = JSON.parse(responseText);
@@ -101,12 +129,12 @@ const Home: React.FC = () => {
           console.error('Erro ao fazer parse do JSON:', parseError);
           throw new Error('Resposta inválida do servidor');
         }
-        
+
         console.log('Resposta parseada do webhook:', webhookResponse);
-        
+
         // Verificar se há uma resposta do agente no webhook
         let agentMessage = "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
-        
+
         // Verificar diferentes formatos de resposta
         if (webhookResponse && typeof webhookResponse === 'object') {
           if (webhookResponse.agent_response) {
@@ -126,9 +154,9 @@ const Home: React.FC = () => {
             agentMessage = webhookResponse.output;
           }
         }
-        
+
         console.log('Mensagem final do agente:', agentMessage);
-        
+
         // Adicionar resposta do bot
         setTimeout(() => {
           setMessages(prev => [...prev, {
@@ -154,7 +182,7 @@ const Home: React.FC = () => {
           isUser: false
         }]);
       }, 500);
-      
+
       toast({
         title: 'Erro',
         description: 'Não foi possível enviar a mensagem. Tente novamente.',
@@ -176,7 +204,7 @@ const Home: React.FC = () => {
       recorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(audioBlob);
-        
+
         const newMessage = {
           id: messages.length + 1,
           text: '',
@@ -186,62 +214,88 @@ const Home: React.FC = () => {
         };
 
         setMessages(prev => [...prev, newMessage]);
-        
+
         // Chamar webhook com áudio
         try {
-          const webhookData = {
-            agent_name: selectedAgent?.name,
-            agent_type: selectedAgent?.type,
-            action: 'chat_audio',
-            message: 'Áudio enviado pelo usuário',
-            timestamp: new Date().toISOString(),
-            source: 'portfolio_website'
+          const agentId = agentIdentifiers[selectedAgent?.type] || selectedAgent?.type;
+
+          // Convert audio to base64
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64Audio = reader.result as string;
+
+            const webhookData = {
+              agent_name: selectedAgent?.name,
+              agent_type: selectedAgent?.type,
+              agent_id: agentId,
+              user_id: userId,
+              action: 'chat_audio',
+              audio_data: base64Audio,
+              timestamp: new Date().toISOString(),
+              source: 'portfolio_website'
+            };
+
+            fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(webhookData)
+            })
+              .then(response => {
+                if (response.ok) {
+                  return response.json();
+                } else {
+                  console.error('Erro na resposta do webhook para áudio:', response.status);
+                  throw new Error('Erro na resposta do webhook para áudio');
+                }
+              })
+              .then(webhookResponse => {
+                console.log('Resposta do webhook para áudio:', webhookResponse);
+
+                let agentMessage = "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
+
+                // Verificar diferentes formatos de resposta
+                if (webhookResponse.agent_response) {
+                  agentMessage = webhookResponse.agent_response;
+                } else if (webhookResponse.message) {
+                  agentMessage = webhookResponse.message;
+                } else if (webhookResponse.response) {
+                  agentMessage = webhookResponse.response;
+                } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
+                  // Caso seja um array como retornado: [{"output": "mensagem"}]
+                  const firstItem = webhookResponse[0];
+                  if (firstItem && firstItem.output) {
+                    agentMessage = firstItem.output;
+                  }
+                } else if (webhookResponse.output) {
+                  // Caso seja um objeto direto com output
+                  agentMessage = webhookResponse.output;
+                }
+
+                setTimeout(() => {
+                  setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    text: agentMessage,
+                    time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    isUser: false
+                  }]);
+                }, 1000);
+              })
+              .catch(error => {
+                console.error('Erro ao enviar áudio:', error);
+                // Adicionar mensagem de erro para áudio
+                setTimeout(() => {
+                  setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    text: "Erro ao processar áudio. Tente novamente.",
+                    time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                    isUser: false
+                  }]);
+                }, 500);
+              });
           };
-
-          const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(webhookData)
-          });
-
-          if (response.ok) {
-            // Processar resposta do webhook para áudio
-            const webhookResponse = await response.json();
-            console.log('Resposta do webhook para áudio:', webhookResponse);
-            
-            let agentMessage = "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
-            
-            // Verificar diferentes formatos de resposta
-            if (webhookResponse.agent_response) {
-              agentMessage = webhookResponse.agent_response;
-            } else if (webhookResponse.message) {
-              agentMessage = webhookResponse.message;
-            } else if (webhookResponse.response) {
-              agentMessage = webhookResponse.response;
-            } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
-              // Caso seja um array como retornado: [{"output": "mensagem"}]
-              const firstItem = webhookResponse[0];
-              if (firstItem && firstItem.output) {
-                agentMessage = firstItem.output;
-              }
-            } else if (webhookResponse.output) {
-              // Caso seja um objeto direto com output
-              agentMessage = webhookResponse.output;
-            }
-            
-            setTimeout(() => {
-              setMessages(prev => [...prev, {
-                id: Date.now() + 1,
-                text: agentMessage,
-                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                isUser: false
-              }]);
-            }, 1000);
-          } else {
-            console.error('Erro na resposta do webhook para áudio:', response.status);
-          }
+          reader.readAsDataURL(audioBlob);
         } catch (error) {
           console.error('Erro ao enviar áudio:', error);
           // Adicionar mensagem de erro para áudio
@@ -254,7 +308,7 @@ const Home: React.FC = () => {
             }]);
           }, 500);
         }
-        
+
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -281,13 +335,17 @@ const Home: React.FC = () => {
 
   const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedAgent) return;
 
     try {
+      const agentId = agentIdentifiers[selectedAgent.type] || selectedAgent.type;
+
       const webhookData = {
         agent_name: selectedAgent.name,
         agent_type: selectedAgent.type,
+        agent_id: agentId,
+        user_id: userId,
         action: 'test_agent',
         timestamp: new Date().toISOString(),
         source: 'portfolio_website',
@@ -396,7 +454,7 @@ const Home: React.FC = () => {
               sua empresa, otimizar processos e maximizar resultados.
             </p>
 
-            
+
           </div>
 
           {/* Right content - 3D Robot */}
@@ -554,7 +612,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      
+
 
       {/* Modal de Chat */}
       <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
@@ -629,7 +687,7 @@ const Home: React.FC = () => {
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 />
               </div>
-              
+
               <Button
                 onClick={isRecording ? stopRecording : startRecording}
                 className={`rounded-full w-10 h-10 p-0 ${
@@ -653,7 +711,7 @@ const Home: React.FC = () => {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            
+
             {isRecording && (
               <div className="mt-2 flex items-center justify-center text-red-400 text-sm">
                 <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse mr-2"></div>
