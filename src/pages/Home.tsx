@@ -98,7 +98,7 @@ const Home: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {[{
             name: 'Agente Comercial (SDR)',
             icon: '💼',
@@ -115,6 +115,38 @@ const Home: React.FC = () => {
             name: 'Agente Advocacia',
             icon: '⚖️',
             description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
+          }, {
+            name: 'Agente Financeiro',
+            icon: '💰',
+            description: 'Optimize gestão financeira e análise de investimentos. Este agente automatiza relatórios, monitora fluxo de caixa e oferece insights para tomada de decisões estratégicas.'
+          }, {
+            name: 'Agente Vendedor Infoprodutos',
+            icon: '📚',
+            description: 'Maximize vendas de produtos digitais e cursos online. Este agente qualifica leads, automatiza funis de venda e personaliza ofertas baseadas no comportamento do cliente.'
+          }, {
+            name: 'Agente CS',
+            icon: '🎧',
+            description: 'Revolucione o atendimento ao cliente com respostas inteligentes 24/7. Este agente resolve dúvidas, escala problemas complexos e mantém histórico completo de interações.'
+          }, {
+            name: 'Agente Recuperador de Vendas',
+            icon: '🔄',
+            description: 'Reconquiste clientes e recupere vendas perdidas. Este agente identifica oportunidades de reengajamento, cria campanhas personalizadas e automatiza follow-ups estratégicos.'
+          }, {
+            name: 'Agente Recrutamento Pessoal (RH)',
+            icon: '👥',
+            description: 'Transforme processos de recrutamento e seleção. Este agente filtra currículos, agenda entrevistas, avalia candidatos e automatiza comunicação durante todo o processo seletivo.'
+          }, {
+            name: 'Agente para Escolas de Ensino',
+            icon: '🎓',
+            description: 'Modernize a gestão educacional e comunicação escolar. Este agente gerencia matrículas, comunica com pais, acompanha desempenho de alunos e automatiza processos administrativos.'
+          }, {
+            name: 'Agente Terapeuta',
+            icon: '🧘',
+            description: 'Apoie a prática terapêutica com agendamentos inteligentes. Este agente organiza sessões, envia lembretes, gerencia prontuários e facilita comunicação com pacientes.'
+          }, {
+            name: 'Agente para Psicólogos',
+            icon: '🧠',
+            description: 'Otimize a prática psicológica com gestão automatizada. Este agente agenda consultas, mantém registros seguros, envia lembretes e auxilia na organização de tratamentos.'
           }].map((agent, index) => (
               <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40 transition-all duration-300 hover:transform hover:scale-105">
                 <div className="w-16 h-16 bg-gradient-to-br from-nexus-purple to-nexus-violet rounded-lg mx-auto mb-4 flex items-center justify-center text-2xl">
