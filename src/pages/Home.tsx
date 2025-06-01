@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Brain, Zap, Target, Shield, Users, TrendingUp } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
+import { SplineSceneBasic } from '@/components/ui/spline-scene-basic';
+
 const Home: React.FC = () => {
   const benefits = [{
     icon: Brain,
@@ -42,7 +44,8 @@ const Home: React.FC = () => {
     number: '24/7',
     label: 'Suporte Disponível'
   }];
-  return <Layout>
+  return (
+    <Layout>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
@@ -62,7 +65,7 @@ const Home: React.FC = () => {
             sua empresa, otimizar processos e maximizar resultados.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in mb-12">
             <Link to="/agentes">
               <Button className="nexus-button text-lg px-8 py-4 group">
                 Explorar Agentes
@@ -75,6 +78,11 @@ const Home: React.FC = () => {
               </Button>
             </Link>
           </div>
+
+          {/* Spline 3D Component */}
+          <div className="max-w-6xl mx-auto animate-fade-in">
+            <SplineSceneBasic />
+          </div>
         </div>
       </section>
 
@@ -82,12 +90,14 @@ const Home: React.FC = () => {
       <section className="py-16 bg-nexus-light/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => <div key={index} className="text-center animate-fade-in">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center animate-fade-in">
                 <div className="text-3xl md:text-4xl font-bold gradient-text mb-2">
                   {stat.number}
                 </div>
                 <div className="text-gray-400">{stat.label}</div>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -106,13 +116,15 @@ const Home: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => <div key={index} className="nexus-card hover-scale animate-fade-in group">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="nexus-card hover-scale animate-fade-in group">
                 <div className="w-12 h-12 bg-purple-gradient rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <benefit.icon className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-white">{benefit.title}</h3>
                 <p className="text-gray-400">{benefit.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -132,29 +144,31 @@ const Home: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[{
-            name: 'Dr. Clinic AI',
-            sector: 'Saúde',
-            description: 'Gestão inteligente de clínicas médicas'
-          }, {
-            name: 'Realty AI Pro',
-            sector: 'Imobiliário',
-            description: 'Otimização de vendas imobiliárias'
-          }, {
-            name: 'Legal AI Assistant',
-            sector: 'Jurídico',
-            description: 'Assistente jurídico inteligente'
-          }, {
-            name: 'FinanceBot AI',
-            sector: 'Financeiro',
-            description: 'Análise financeira avançada'
-          }].map((agent, index) => <div key={index} className="nexus-card hover-scale animate-fade-in text-center">
+              name: 'Dr. Clinic AI',
+              sector: 'Saúde',
+              description: 'Gestão inteligente de clínicas médicas'
+            }, {
+              name: 'Realty AI Pro',
+              sector: 'Imobiliário',
+              description: 'Otimização de vendas imobiliárias'
+            }, {
+              name: 'Legal AI Assistant',
+              sector: 'Jurídico',
+              description: 'Assistente jurídico inteligente'
+            }, {
+              name: 'FinanceBot AI',
+              sector: 'Financeiro',
+              description: 'Análise financeira avançada'
+            }].map((agent, index) => (
+              <div key={index} className="nexus-card hover-scale animate-fade-in text-center">
                 <div className="w-16 h-16 bg-accent-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
                   <Brain className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-white">{agent.name}</h3>
                 <div className="text-nexus-purple text-sm font-medium mb-2">{agent.sector}</div>
                 <p className="text-gray-400 text-sm">{agent.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
           
           <div className="text-center">
@@ -195,6 +209,8 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
-    </Layout>;
+    </Layout>
+  );
 };
+
 export default Home;
