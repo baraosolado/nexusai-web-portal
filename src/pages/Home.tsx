@@ -85,11 +85,24 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      
+      {/* Stats Section with gradient transition */}
+      <section className="py-16 bg-gradient-to-b from-nexus-dark via-nexus-darker/50 to-nexus-light/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            {stats.map((stat, index) => (
+              <div key={index} className="animate-fade-in">
+                <div className="text-3xl lg:text-4xl font-bold text-white mb-2 gradient-text">
+                  {stat.number}
+                </div>
+                <div className="text-gray-400 text-sm lg:text-base">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Featured Agents Section */}
-      <section className="py-20 bg-nexus-light/20">
+      <section className="py-20 bg-gradient-to-b from-nexus-light/20 via-nexus-light/10 to-transparent">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -140,7 +153,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-b from-transparent via-nexus-darker/30 to-nexus-light/10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
@@ -165,7 +178,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-b from-nexus-light/10 via-nexus-darker/20 to-nexus-dark">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="nexus-card text-center max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
