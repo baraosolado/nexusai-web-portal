@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Send, Mic, MicOff, X } from 'lucide-react';
 const Home: React.FC = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,10 +20,111 @@ const Home: React.FC = () => {
     company: '',
     phone: ''
   });
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState<{id: number, text: string, audio?: string, time: string, isUser: boolean}[]>([]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
     setIsModalOpen(true);
+  };
+
+  const handleOpenChat = () => {
+    setIsModalOpen(false);
+    setIsChatOpen(true);
+    // Mensagem inicial do bot
+    setMessages([{
+      id: 1,
+      text: `Olá! Sou o ${selectedAgent?.name}. Como posso ajudá-lo hoje?`,
+      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      isUser: false
+    }]);
+  };
+
+  const handleSendMessage = () => {
+    if (!currentMessage.trim()) return;
+
+    const newMessage = {
+      id: messages.length + 1,
+      text: currentMessage,
+      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      isUser: true
+    };
+
+    setMessages(prev => [...prev, newMessage]);
+    setCurrentMessage('');
+
+    // Simular resposta do bot após 1 segundo
+    setTimeout(() => {
+      const botResponse = {
+        id: messages.length + 2,
+        text: "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.",
+        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        isUser: false
+      };
+      setMessages(prev => [...prev, botResponse]);
+    }, 1000);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const audioChunks: BlobPart[] = [];
+
+      recorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        const newMessage = {
+          id: messages.length + 1,
+          text: '',
+          audio: audioUrl,
+          time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          isUser: true
+        };
+
+        setMessages(prev => [...prev, newMessage]);
+        
+        // Simular resposta do bot
+        setTimeout(() => {
+          const botResponse = {
+            id: messages.length + 2,
+            text: "Recebi seu áudio! Nossa equipe analisará e retornará em breve.",
+            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            isUser: false
+          };
+          setMessages(prev => [...prev, botResponse]);
+        }, 1000);
+        
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      setMediaRecorder(recorder);
+      recorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Erro ao iniciar gravação:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível acessar o microfone.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+    }
   };
 
   const handleSubmitForm = async (e: React.FormEvent) => {
@@ -367,13 +469,120 @@ const Home: React.FC = () => {
                 Cancelar
               </Button>
               <Button
-                type="submit"
+                type="button"
+                onClick={handleOpenChat}
                 className="flex-1 bg-gradient-to-r from-nexus-purple to-nexus-violet hover:from-nexus-violet hover:to-nexus-purple"
               >
-                Testar Agente
+                Iniciar Conversa
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Chat */}
+      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+        <DialogContent className="sm:max-w-[400px] h-[600px] bg-nexus-darker border border-nexus-purple/20 p-0 flex flex-col">
+          <DialogHeader className="p-4 border-b border-nexus-purple/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-nexus-purple to-nexus-violet rounded-full flex items-center justify-center">
+                  <Brain className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-white text-lg">
+                    {selectedAgent?.name}
+                  </DialogTitle>
+                  <p className="text-xs text-gray-400">Online agora</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsChatOpen(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </DialogHeader>
+
+          {/* Área de mensagens */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-lg p-3 ${
+                    message.isUser
+                      ? 'bg-nexus-purple text-white'
+                      : 'bg-nexus-light text-white'
+                  }`}
+                >
+                  {message.audio ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <Mic className="h-4 w-4" />
+                      </div>
+                      <audio controls className="max-w-[200px]">
+                        <source src={message.audio} type="audio/wav" />
+                      </audio>
+                    </div>
+                  ) : (
+                    <p className="text-sm">{message.text}</p>
+                  )}
+                  <p className="text-xs opacity-70 mt-1">{message.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Área de input */}
+          <div className="p-4 border-t border-nexus-purple/20">
+            <div className="flex items-center space-x-2">
+              <div className="flex-1 flex items-center bg-nexus-light rounded-full px-3 py-2">
+                <Input
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  placeholder="Digite uma mensagem..."
+                  className="border-0 bg-transparent text-white placeholder:text-gray-400 focus-visible:ring-0"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                />
+              </div>
+              
+              <Button
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`rounded-full w-10 h-10 p-0 ${
+                  isRecording
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-nexus-purple hover:bg-nexus-violet'
+                }`}
+              >
+                {isRecording ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+
+              <Button
+                onClick={handleSendMessage}
+                disabled={!currentMessage.trim()}
+                className="rounded-full w-10 h-10 p-0 bg-nexus-purple hover:bg-nexus-violet disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {isRecording && (
+              <div className="mt-2 flex items-center justify-center text-red-400 text-sm">
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse mr-2"></div>
+                Gravando áudio...
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </Layout>;
