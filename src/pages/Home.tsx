@@ -46,7 +46,7 @@ const Home: React.FC = () => {
   }];
   return <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden pt-8">
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
@@ -55,7 +55,14 @@ const Home: React.FC = () => {
         
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
         
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        {/* Logo */}
+        <div className="relative mb-12">
+          <Link to="/" className="flex items-center justify-center space-x-3 hover-scale">
+            <span className="text-3xl font-bold gradient-text">Solandox</span>
+          </Link>
+        </div>
+        
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"></div>
           {/* Left content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
