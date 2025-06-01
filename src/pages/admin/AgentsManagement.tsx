@@ -392,7 +392,6 @@ const AgentsManagement: React.FC = () => {
                         <Switch
                           checked={agent.status === 'active'}
                           onCheckedChange={() => handleToggleStatus(agent)}
-                          size="sm"
                         />
                         <span className={`text-xs ${
                           agent.status === 'active' ? 'text-green-400' : 'text-gray-400'
