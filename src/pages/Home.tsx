@@ -225,56 +225,70 @@ const Home: React.FC = () => {
 
           // Convert audio to base64
           const reader = new FileReader();
-          reader.onloadend = () => {
-            const base64Audio = reader.result as string;
+          reader.onloadend = async () => {
+            try {
+              const base64Audio = reader.result as string;
+              
+              // Remove o prefixo "data:audio/wav;base64," para enviar apenas o base64 puro
+              const base64Data = base64Audio.split(',')[1];
 
-            const webhookData = {
-              agent_name: selectedAgent?.name,
-              agent_type: selectedAgent?.type,
-              agent_id: agentId,
-              user_id: userId,
-              action: 'chat_audio',
-              audio_data: base64Audio,
-              timestamp: new Date().toISOString(),
-              source: 'portfolio_website'
-            };
+              console.log('Enviando áudio em base64 para webhook');
 
-            fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(webhookData)
-            })
-              .then(response => {
-                if (response.ok) {
-                  return response.json();
-                } else {
-                  console.error('Erro na resposta do webhook para áudio:', response.status);
-                  throw new Error('Erro na resposta do webhook para áudio');
+              const webhookData = {
+                agent_name: selectedAgent?.name,
+                agent_type: selectedAgent?.type,
+                agent_id: agentId,
+                user_id: userId,
+                action: 'chat_audio',
+                audio_data: base64Data,
+                timestamp: new Date().toISOString(),
+                source: 'portfolio_website'
+              };
+
+              const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(webhookData)
+              });
+
+              console.log('Status da resposta do webhook para áudio:', response.status);
+
+              if (response.ok) {
+                const responseText = await response.text();
+                console.log('Resposta bruta do webhook para áudio:', responseText);
+
+                let webhookResponse;
+                try {
+                  webhookResponse = JSON.parse(responseText);
+                } catch (parseError) {
+                  console.error('Erro ao fazer parse do JSON para áudio:', parseError);
+                  throw new Error('Resposta inválida do servidor para áudio');
                 }
-              })
-              .then(webhookResponse => {
-                console.log('Resposta do webhook para áudio:', webhookResponse);
+
+                console.log('Resposta parseada do webhook para áudio:', webhookResponse);
 
                 let agentMessage = "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
 
                 // Verificar diferentes formatos de resposta
-                if (webhookResponse.agent_response) {
-                  agentMessage = webhookResponse.agent_response;
-                } else if (webhookResponse.message) {
-                  agentMessage = webhookResponse.message;
-                } else if (webhookResponse.response) {
-                  agentMessage = webhookResponse.response;
-                } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
-                  // Caso seja um array como retornado: [{"output": "mensagem"}]
-                  const firstItem = webhookResponse[0];
-                  if (firstItem && firstItem.output) {
-                    agentMessage = firstItem.output;
+                if (webhookResponse && typeof webhookResponse === 'object') {
+                  if (webhookResponse.agent_response) {
+                    agentMessage = webhookResponse.agent_response;
+                  } else if (webhookResponse.message) {
+                    agentMessage = webhookResponse.message;
+                  } else if (webhookResponse.response) {
+                    agentMessage = webhookResponse.response;
+                  } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
+                    // Caso seja um array como retornado: [{"output": "mensagem"}]
+                    const firstItem = webhookResponse[0];
+                    if (firstItem && typeof firstItem === 'object' && firstItem.output) {
+                      agentMessage = firstItem.output;
+                    }
+                  } else if (webhookResponse.output) {
+                    // Caso seja um objeto direto com output
+                    agentMessage = webhookResponse.output;
                   }
-                } else if (webhookResponse.output) {
-                  // Caso seja um objeto direto com output
-                  agentMessage = webhookResponse.output;
                 }
 
                 setTimeout(() => {
@@ -285,19 +299,29 @@ const Home: React.FC = () => {
                     isUser: false
                   }]);
                 }, 1000);
-              })
-              .catch(error => {
-                console.error('Erro ao enviar áudio:', error);
-                // Adicionar mensagem de erro para áudio
-                setTimeout(() => {
-                  setMessages(prev => [...prev, {
-                    id: Date.now() + 1,
-                    text: "Erro ao processar áudio. Tente novamente.",
-                    time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    isUser: false
-                  }]);
-                }, 500);
+              } else {
+                const errorText = await response.text();
+                console.error('Erro na resposta do webhook para áudio:', response.status, response.statusText, errorText);
+                throw new Error(`Falha na requisição de áudio: ${response.status}`);
+              }
+            } catch (error) {
+              console.error('Erro ao processar áudio:', error);
+              // Adicionar mensagem de erro para áudio
+              setTimeout(() => {
+                setMessages(prev => [...prev, {
+                  id: Date.now() + 1,
+                  text: "Erro ao processar áudio. Tente novamente.",
+                  time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                  isUser: false
+                }]);
+              }, 500);
+
+              toast({
+                title: 'Erro',
+                description: 'Não foi possível enviar o áudio. Tente novamente.',
+                variant: 'destructive',
               });
+            }
           };
           reader.readAsDataURL(audioBlob);
         } catch (error) {
