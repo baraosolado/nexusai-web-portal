@@ -2,7 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Brain, Zap, Target, Shield, Users, TrendingUp } from 'lucide-react';
+import { SplineScene } from '@/components/ui/splite';
+import { Spotlight } from '@/components/ui/spotlight';
 import Layout from '@/components/layout/Layout';
+
 const Home: React.FC = () => {
   const benefits = [{
     icon: Brain,
@@ -51,29 +54,42 @@ const Home: React.FC = () => {
           <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
         </div>
         
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
-            Transforme seu Negócio com{' '}
-            <span className="gradient-text">Agentes de IA</span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto animate-fade-in">
-            Descubra como nossos agentes de IA especializados podem revolucionar 
-            sua empresa, otimizar processos e maximizar resultados.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in">
-            <Link to="/agentes">
-              <Button className="nexus-button text-lg px-8 py-4 group">
-                Explorar Agentes
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link to="/contato">
-              <Button variant="outline" className="text-lg px-8 py-4 border-nexus-purple text-nexus-purple hover:bg-nexus-purple hover:text-white">
-                Falar com Especialista
-              </Button>
-            </Link>
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
+        
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left content */}
+          <div className="text-center lg:text-left">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
+              Transforme seu Negócio com{' '}
+              <span className="gradient-text">Agentes de IA</span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto lg:mx-0 animate-fade-in">
+              Descubra como nossos agentes de IA especializados podem revolucionar 
+              sua empresa, otimizar processos e maximizar resultados.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center animate-fade-in">
+              <Link to="/agentes">
+                <Button className="nexus-button text-lg px-8 py-4 group">
+                  Explorar Agentes
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/contato">
+                <Button variant="outline" className="text-lg px-8 py-4 border-nexus-purple text-nexus-purple hover:bg-nexus-purple hover:text-white">
+                  Falar com Especialista
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Right content - 3D Robot */}
+          <div className="relative h-[600px] lg:h-[700px]">
+            <SplineScene 
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
           </div>
         </div>
       </section>
@@ -197,4 +213,5 @@ const Home: React.FC = () => {
       </section>
     </Layout>;
 };
+
 export default Home;
