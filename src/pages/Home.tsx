@@ -80,10 +80,25 @@ const Home: React.FC = () => {
         console.log('Resposta do webhook:', webhookResponse);
         
         // Verificar se há uma resposta do agente no webhook
-        const agentMessage = webhookResponse.agent_response || 
-                            webhookResponse.message || 
-                            webhookResponse.response ||
-                            "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
+        let agentMessage = "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
+        
+        // Verificar diferentes formatos de resposta
+        if (webhookResponse.agent_response) {
+          agentMessage = webhookResponse.agent_response;
+        } else if (webhookResponse.message) {
+          agentMessage = webhookResponse.message;
+        } else if (webhookResponse.response) {
+          agentMessage = webhookResponse.response;
+        } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
+          // Caso seja um array como retornado: [{"output": "mensagem"}]
+          const firstItem = webhookResponse[0];
+          if (firstItem && firstItem.output) {
+            agentMessage = firstItem.output;
+          }
+        } else if (webhookResponse.output) {
+          // Caso seja um objeto direto com output
+          agentMessage = webhookResponse.output;
+        }
         
         // Adicionar resposta do bot
         setTimeout(() => {
@@ -166,10 +181,25 @@ const Home: React.FC = () => {
             const webhookResponse = await response.json();
             console.log('Resposta do webhook para áudio:', webhookResponse);
             
-            const agentMessage = webhookResponse.agent_response || 
-                                webhookResponse.message || 
-                                webhookResponse.response ||
-                                "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
+            let agentMessage = "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
+            
+            // Verificar diferentes formatos de resposta
+            if (webhookResponse.agent_response) {
+              agentMessage = webhookResponse.agent_response;
+            } else if (webhookResponse.message) {
+              agentMessage = webhookResponse.message;
+            } else if (webhookResponse.response) {
+              agentMessage = webhookResponse.response;
+            } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
+              // Caso seja um array como retornado: [{"output": "mensagem"}]
+              const firstItem = webhookResponse[0];
+              if (firstItem && firstItem.output) {
+                agentMessage = firstItem.output;
+              }
+            } else if (webhookResponse.output) {
+              // Caso seja um objeto direto com output
+              agentMessage = webhookResponse.output;
+            }
             
             setTimeout(() => {
               setMessages(prev => [...prev, {
