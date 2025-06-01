@@ -50,10 +50,8 @@ const Home: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-48 h-48 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
         </div>
-        
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
         
         {/* Logo no topo */}
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
