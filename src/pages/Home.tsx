@@ -10,8 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Send, Mic, MicOff, X } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
-
 const Home: React.FC = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,11 +26,17 @@ const Home: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [userId, setUserId] = useState(uuidv4());
+  
+  // Função para gerar números aleatórios simples para session_id
+  const generateSessionId = () => {
+    return Math.floor(Math.random() * 1000000000).toString();
+  };
+  
+  const [userId, setUserId] = useState(generateSessionId());
 
   useEffect(() => {
     if (!userId) {
-      setUserId(uuidv4());
+      setUserId(generateSessionId());
     }
   }, []);
 
