@@ -55,14 +55,14 @@ const Home: React.FC = () => {
         
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
         
-        {/* Logo */}
-        <div className="relative mb-12">
+        {/* Logo no topo */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
           <Link to="/" className="flex items-center justify-center space-x-3 hover-scale">
             <span className="text-3xl font-bold gradient-text">Solandox</span>
           </Link>
         </div>
         
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"></div>
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-20"></div>
           {/* Left content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
