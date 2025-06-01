@@ -74,16 +74,24 @@ const Home: React.FC = () => {
       });
 
       if (response.ok) {
-        // Simular resposta do bot após 1 segundo
+        // Processar resposta do webhook
+        const webhookResponse = await response.json();
+        
+        // Verificar se há uma resposta do agente no webhook
+        const agentMessage = webhookResponse.agent_response || 
+                            webhookResponse.message || 
+                            "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
+        
+        // Simular delay de processamento do agente
         setTimeout(() => {
           const botResponse = {
             id: messages.length + 2,
-            text: "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.",
+            text: agentMessage,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             isUser: false
           };
           setMessages(prev => [...prev, botResponse]);
-        }, 1000);
+        }, 1500);
       } else {
         throw new Error('Falha na requisição');
       }
@@ -141,16 +149,22 @@ const Home: React.FC = () => {
           });
 
           if (response.ok) {
-            // Simular resposta do bot
+            // Processar resposta do webhook para áudio
+            const webhookResponse = await response.json();
+            
+            const agentMessage = webhookResponse.agent_response || 
+                                webhookResponse.message || 
+                                "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
+            
             setTimeout(() => {
               const botResponse = {
                 id: messages.length + 2,
-                text: "Recebi seu áudio! Nossa equipe analisará e retornará em breve.",
+                text: agentMessage,
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 isUser: false
               };
               setMessages(prev => [...prev, botResponse]);
-            }, 1000);
+            }, 1500);
           }
         } catch (error) {
           console.error('Erro ao enviar áudio:', error);
