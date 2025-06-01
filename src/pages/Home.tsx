@@ -28,23 +28,20 @@ const Home: React.FC = () => {
 
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
-    setIsModalOpen(true);
-  };
-
-  const handleOpenChat = () => {
-    setIsModalOpen(false);
     setIsChatOpen(true);
     // Mensagem inicial do bot
     setMessages([{
       id: 1,
-      text: `Olá! Sou o ${selectedAgent?.name}. Como posso ajudá-lo hoje?`,
+      text: `Olá! Sou o ${agentName}. Como posso ajudá-lo hoje?`,
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       isUser: false
     }]);
   };
 
-  const handleSendMessage = () => {
-    if (!currentMessage.trim()) return;
+  
+
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim() || !selectedAgent) return;
 
     const newMessage = {
       id: messages.length + 1,
@@ -54,18 +51,50 @@ const Home: React.FC = () => {
     };
 
     setMessages(prev => [...prev, newMessage]);
+    const messageToSend = currentMessage;
     setCurrentMessage('');
 
-    // Simular resposta do bot após 1 segundo
-    setTimeout(() => {
-      const botResponse = {
-        id: messages.length + 2,
-        text: "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.",
-        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        isUser: false
+    // Chamar webhook com a mensagem do usuário
+    try {
+      const webhookData = {
+        agent_name: selectedAgent.name,
+        agent_type: selectedAgent.type,
+        action: 'chat_message',
+        message: messageToSend,
+        timestamp: new Date().toISOString(),
+        source: 'portfolio_website'
       };
-      setMessages(prev => [...prev, botResponse]);
-    }, 1000);
+
+      const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (response.ok) {
+        // Simular resposta do bot após 1 segundo
+        setTimeout(() => {
+          const botResponse = {
+            id: messages.length + 2,
+            text: "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.",
+            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            isUser: false
+          };
+          setMessages(prev => [...prev, botResponse]);
+        }, 1000);
+      } else {
+        throw new Error('Falha na requisição');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível enviar a mensagem. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const startRecording = async () => {
@@ -78,7 +107,7 @@ const Home: React.FC = () => {
         audioChunks.push(event.data);
       };
 
-      recorder.onstop = () => {
+      recorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioUrl = URL.createObjectURL(audioBlob);
         
@@ -92,16 +121,40 @@ const Home: React.FC = () => {
 
         setMessages(prev => [...prev, newMessage]);
         
-        // Simular resposta do bot
-        setTimeout(() => {
-          const botResponse = {
-            id: messages.length + 2,
-            text: "Recebi seu áudio! Nossa equipe analisará e retornará em breve.",
-            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            isUser: false
+        // Chamar webhook com áudio
+        try {
+          const webhookData = {
+            agent_name: selectedAgent?.name,
+            agent_type: selectedAgent?.type,
+            action: 'chat_audio',
+            message: 'Áudio enviado pelo usuário',
+            timestamp: new Date().toISOString(),
+            source: 'portfolio_website'
           };
-          setMessages(prev => [...prev, botResponse]);
-        }, 1000);
+
+          const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(webhookData)
+          });
+
+          if (response.ok) {
+            // Simular resposta do bot
+            setTimeout(() => {
+              const botResponse = {
+                id: messages.length + 2,
+                text: "Recebi seu áudio! Nossa equipe analisará e retornará em breve.",
+                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                isUser: false
+              };
+              setMessages(prev => [...prev, botResponse]);
+            }, 1000);
+          }
+        } catch (error) {
+          console.error('Erro ao enviar áudio:', error);
+        }
         
         stream.getTracks().forEach(track => track.stop());
       };
@@ -404,81 +457,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Modal para testar agente */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-nexus-darker border border-nexus-purple/20">
-          <DialogHeader>
-            <DialogTitle className="text-white text-xl">
-              Testar {selectedAgent?.name}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmitForm} className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-white">Nome completo *</Label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
-                placeholder="Seu nome completo"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">E-mail *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
-                placeholder="seu@email.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="company" className="text-white">Empresa</Label>
-              <Input
-                id="company"
-                type="text"
-                value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
-                placeholder="Nome da sua empresa"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-white">Telefone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
-                placeholder="(11) 99999-9999"
-              />
-            </div>
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 border-nexus-purple/20 text-white hover:bg-nexus-purple/10"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="button"
-                onClick={handleOpenChat}
-                className="flex-1 bg-gradient-to-r from-nexus-purple to-nexus-violet hover:from-nexus-violet hover:to-nexus-purple"
-              >
-                Iniciar Conversa
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      
 
       {/* Modal de Chat */}
       <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
