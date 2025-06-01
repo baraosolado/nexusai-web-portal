@@ -396,14 +396,7 @@ const Home: React.FC = () => {
               sua empresa, otimizar processos e maximizar resultados.
             </p>
 
-            <div className="flex justify-center lg:justify-start animate-fade-in mt-10">
-              <Link to="/agentes">
-                <Button className="nexus-button text-lg px-8 py-4 group">
-                  Explorar Agentes
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            </div>
+            
           </div>
 
           {/* Right content - 3D Robot */}
