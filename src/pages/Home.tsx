@@ -49,8 +49,8 @@ const Home: React.FC = () => {
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/3 left-1/5 w-48 h-48 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
-          <div className="absolute top-1/2 right-1/5 w-32 h-32 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
+          <div className="absolute bottom-20 left-1/4 w-48 h-48 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
+          <div className="absolute bottom-32 right-1/4 w-32 h-32 bg-nexus-violet/20 rounded-full blur-3xl animate-pulse-glow"></div>
         </div>
         
         {/* Logo no topo */}
