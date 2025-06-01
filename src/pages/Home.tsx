@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Brain, Zap, Target, Shield, Users, TrendingUp } from 'lucide-react';
@@ -6,17 +6,43 @@ import { SplineScene } from '@/components/ui/splite';
 import { Spotlight } from '@/components/ui/spotlight';
 import Layout from '@/components/layout/Layout';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 const Home: React.FC = () => {
   const { toast } = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<{name: string, type: string} | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    phone: ''
+  });
 
-  const handleTestAgent = async (agentName: string, agentType: string) => {
+  const handleTestAgent = (agentName: string, agentType: string) => {
+    setSelectedAgent({ name: agentName, type: agentType });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmitForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedAgent) return;
+
     try {
       const webhookData = {
-        agent_name: agentName,
-        agent_type: agentType,
+        agent_name: selectedAgent.name,
+        agent_type: selectedAgent.type,
         action: 'test_agent',
         timestamp: new Date().toISOString(),
-        source: 'portfolio_website'
+        source: 'portfolio_website',
+        user_info: {
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          phone: formData.phone
+        }
       };
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
@@ -30,8 +56,10 @@ const Home: React.FC = () => {
       if (response.ok) {
         toast({
           title: 'Agente Ativado!',
-          description: `${agentName} foi ativado com sucesso. Em breve você receberá mais informações.`,
+          description: `${selectedAgent.name} foi ativado com sucesso. Em breve você receberá mais informações.`,
         });
+        setIsModalOpen(false);
+        setFormData({ name: '', email: '', company: '', phone: '' });
       } else {
         throw new Error('Falha na requisição');
       }
@@ -273,6 +301,81 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Modal para testar agente */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-nexus-darker border border-nexus-purple/20">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl">
+              Testar {selectedAgent?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmitForm} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-white">Nome completo *</Label>
+              <Input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
+                placeholder="Seu nome completo"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-white">E-mail *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
+                placeholder="seu@email.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company" className="text-white">Empresa</Label>
+              <Input
+                id="company"
+                type="text"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
+                placeholder="Nome da sua empresa"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-white">Telefone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="bg-nexus-light border-nexus-purple/20 text-white placeholder:text-gray-400"
+                placeholder="(11) 99999-9999"
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 border-nexus-purple/20 text-white hover:bg-nexus-purple/10"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-nexus-purple to-nexus-violet hover:from-nexus-violet hover:to-nexus-purple"
+              >
+                Testar Agente
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Layout>;
 };
 export default Home;
