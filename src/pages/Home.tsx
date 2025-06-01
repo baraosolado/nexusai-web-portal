@@ -5,7 +5,46 @@ import { ArrowRight, Brain, Zap, Target, Shield, Users, TrendingUp } from 'lucid
 import { SplineScene } from '@/components/ui/splite';
 import { Spotlight } from '@/components/ui/spotlight';
 import Layout from '@/components/layout/Layout';
+import { useToast } from '@/hooks/use-toast';
 const Home: React.FC = () => {
+  const { toast } = useToast();
+
+  const handleTestAgent = async (agentName: string, agentType: string) => {
+    try {
+      const webhookData = {
+        agent_name: agentName,
+        agent_type: agentType,
+        action: 'test_agent',
+        timestamp: new Date().toISOString(),
+        source: 'portfolio_website'
+      };
+
+      const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Agente Ativado!',
+          description: `${agentName} foi ativado com sucesso. Em breve você receberá mais informações.`,
+        });
+      } else {
+        throw new Error('Falha na requisição');
+      }
+    } catch (error) {
+      console.error('Erro ao testar agente:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível ativar o agente. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const benefits = [{
     icon: Zap,
     title: 'Altamente Eficientes',
@@ -110,50 +149,62 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[{
             name: 'Agente Comercial (SDR)',
+            type: 'sdr',
             icon: <Users className="h-8 w-8" />,
             description: 'Automatize prospecção e qualificação de leads. Este agente gerencia o funil de vendas, agenda reuniões e mantém interações personalizadas com potenciais clientes.'
           }, {
             name: 'Agente Clínicas',
+            type: 'clinicas',
             icon: <Target className="h-8 w-8" />,
             description: 'Otimize o gerenciamento de pacientes e consultas. Este agente organiza agendamentos, envia lembretes e facilita a comunicação entre equipe médica e pacientes.'
           }, {
             name: 'Agente Imobiliárias',
+            type: 'imobiliarias',
             icon: <Brain className="h-8 w-8" />,
             description: 'Transforme a experiência de compra e venda de imóveis. Este agente gerencia listagens, organiza visitas e qualifica leads para corretores, aumentando a eficiência do negócio.'
           }, {
             name: 'Agente Advocacia',
+            type: 'advocacia',
             icon: <Shield className="h-8 w-8" />,
             description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
           }, {
             name: 'Agente Financeiro',
+            type: 'financeiro',
             icon: <TrendingUp className="h-8 w-8" />,
             description: 'Optimize gestão financeira e análise de investimentos. Este agente automatiza relatórios, monitora fluxo de caixa e oferece insights para tomada de decisões estratégicas.'
           }, {
             name: 'Agente Vendedor Infoprodutos',
+            type: 'infoprodutos',
             icon: <Zap className="h-8 w-8" />,
             description: 'Maximize vendas de produtos digitais e cursos online. Este agente qualifica leads, automatiza funis de venda e personaliza ofertas baseadas no comportamento do cliente.'
           }, {
             name: 'Agente CS',
+            type: 'customer_service',
             icon: <Users className="h-8 w-8" />,
             description: 'Revolucione o atendimento ao cliente com respostas inteligentes 24/7. Este agente resolve dúvidas, escala problemas complexos e mantém histórico completo de interações.'
           }, {
             name: 'Agente Recuperador de Vendas',
+            type: 'recuperador_vendas',
             icon: <Target className="h-8 w-8" />,
             description: 'Reconquiste clientes e recupere vendas perdidas. Este agente identifica oportunidades de reengajamento, cria campanhas personalizadas e automatiza follow-ups estratégicos.'
           }, {
             name: 'Agente Recrutamento Pessoal (RH)',
+            type: 'rh',
             icon: <Brain className="h-8 w-8" />,
             description: 'Transforme processos de recrutamento e seleção. Este agente filtra currículos, agenda entrevistas, avalia candidatos e automatiza comunicação durante todo o processo seletivo.'
           }, {
             name: 'Agente para Escolas de Ensino',
+            type: 'escolas',
             icon: <Shield className="h-8 w-8" />,
             description: 'Modernize a gestão educacional e comunicação escolar. Este agente gerencia matrículas, comunica com pais, acompanha desempenho de alunos e automatiza processos administrativos.'
           }, {
             name: 'Agente Terapeuta',
+            type: 'terapeuta',
             icon: <Brain className="h-8 w-8" />,
             description: 'Apoie a prática terapêutica com agendamentos inteligentes. Este agente organiza sessões, envia lembretes, gerencia prontuários e facilita comunicação com pacientes.'
           }, {
             name: 'Agente para Psicólogos',
+            type: 'psicologo',
             icon: <Brain className="h-8 w-8" />,
             description: 'Otimize a prática psicológica com gestão automatizada. Este agente agenda consultas, mantém registros seguros, envia lembretes e auxilia na organização de tratamentos.'
           }].map((agent, index) => (
@@ -163,7 +214,10 @@ const Home: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-4 text-white text-center">{agent.name}</h3>
                 <p className="text-gray-300 text-sm leading-relaxed mb-6 flex-grow">{agent.description}</p>
-                <Button className="w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300 mt-auto">
+                <Button 
+                  onClick={() => handleTestAgent(agent.name, agent.type)}
+                  className="w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300 mt-auto"
+                >
                   TESTAR AGORA
                 </Button>
               </div>
