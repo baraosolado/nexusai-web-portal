@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,18 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// NexusAI Custom Colors
+				nexus: {
+					'dark': '#1a1a2e',
+					'darker': '#100f1c',
+					'purple': '#8a2be2',
+					'violet': '#7f00ff',
+					'light': '#2a2a3e',
+					'accent': '#9d4edd',
+					'success': '#10b981',
+					'warning': '#f59e0b',
+					'error': '#ef4444'
 				}
 			},
 			borderRadius: {
@@ -84,11 +97,54 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'scale-in': {
+					'0%': {
+						transform: 'scale(0.95)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
+				},
+				'slide-in-right': {
+					'0%': { transform: 'translateX(100%)' },
+					'100%': { transform: 'translateX(0)' }
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						transform: 'scale(1)',
+						boxShadow: '0 0 20px rgba(138, 43, 226, 0.3)'
+					},
+					'50%': { 
+						transform: 'scale(1.05)',
+						boxShadow: '0 0 40px rgba(138, 43, 226, 0.6)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'scale-in': 'scale-in 0.2s ease-out',
+				'slide-in-right': 'slide-in-right 0.3s ease-out',
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'nexus-gradient': 'linear-gradient(135deg, #1a1a2e 0%, #100f1c 50%, #2a2a3e 100%)',
+				'purple-gradient': 'linear-gradient(135deg, #8a2be2 0%, #7f00ff 100%)',
+				'accent-gradient': 'linear-gradient(135deg, #9d4edd 0%, #8a2be2 100%)'
 			}
 		}
 	},
