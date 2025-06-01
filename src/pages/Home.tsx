@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Send, Mic, MicOff, X } from 'lucide-react';
-
 const Home: React.FC = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -369,7 +367,7 @@ const Home: React.FC = () => {
   }];
   return <Layout>
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-nexus-purple/20 rounded-full blur-3xl animate-pulse-glow"></div>
@@ -379,21 +377,21 @@ const Home: React.FC = () => {
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" />
 
         {/* Logo */}
-        <div className="relative mb-8 lg:mb-12">
+        <div className="relative mb-12">
           <Link to="/" className="flex items-center justify-center space-x-3 hover-scale">
             <span className="text-3xl font-bold gradient-text">Solandox</span>
           </Link>
         </div>
 
-        <div className="relative container mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left content */}
-          <div className="text-center lg:text-left px-4 lg:px-0">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 animate-fade-in leading-tight">
+          <div className="text-center lg:text-left">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
               Transforme seu Negócio com{' '}
               <span className="gradient-text">Agentes de IA</span>
             </h1>
 
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0 animate-fade-in leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto lg:mx-0 animate-fade-in">
               Descubra como nossos agentes de IA especializados podem revolucionar 
               sua empresa, otimizar processos e maximizar resultados.
             </p>
@@ -409,8 +407,8 @@ const Home: React.FC = () => {
           </div>
 
           {/* Right content - 3D Robot */}
-          <div className="relative h-[350px] md:h-[450px] lg:h-[500px] xl:h-[550px] px-4 lg:px-0">
-            <div className="absolute inset-0 h-full">
+          <div className="relative h-[400px] lg:h-[500px]">
+            <div className="absolute bottom-0 left-0 right-0 h-full">
               <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
             </div>
           </div>
