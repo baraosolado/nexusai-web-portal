@@ -383,20 +383,20 @@ const Home: React.FC = () => {
           </Link>
         </div>
 
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[60vh]">
           {/* Left content */}
-          <div className="text-center lg:text-left">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in">
+          <div className="text-center lg:text-left lg:pr-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 animate-fade-in leading-tight">
               Transforme seu Negócio com{' '}
               <span className="gradient-text">Agentes de IA</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto lg:mx-0 animate-fade-in">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0 animate-fade-in leading-relaxed">
               Descubra como nossos agentes de IA especializados podem revolucionar 
               sua empresa, otimizar processos e maximizar resultados.
             </p>
 
-            <div className="flex justify-center lg:justify-start animate-fade-in">
+            <div className="flex justify-center lg:justify-start animate-fade-in mt-10">
               <Link to="/agentes">
                 <Button className="nexus-button text-lg px-8 py-4 group">
                   Explorar Agentes
@@ -407,9 +407,16 @@ const Home: React.FC = () => {
           </div>
 
           {/* Right content - 3D Robot */}
-          <div className="relative h-[400px] lg:h-[500px]">
-            <div className="absolute bottom-0 left-0 right-0 h-full">
-              <SplineScene scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" className="w-full h-full" />
+          <div className="relative h-[400px] lg:h-[500px] flex items-end justify-center lg:justify-end">
+            <div className="relative w-full max-w-[450px] h-[350px] lg:h-[450px]">
+              <div className="absolute inset-0 bottom-4 lg:bottom-8">
+                <SplineScene 
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
+                  className="w-full h-full object-contain" 
+                />
+              </div>
+              {/* Gradiente sutil para melhor integração */}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-nexus-dark/50 to-transparent pointer-events-none"></div>
             </div>
           </div>
         </div>
