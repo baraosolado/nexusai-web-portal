@@ -100,29 +100,33 @@ const Home: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[{
-            name: 'Dr. Clinic AI',
-            sector: 'Saúde',
-            description: 'Gestão inteligente de clínicas médicas'
+            name: 'Agente Comercial (SDR)',
+            icon: '💼',
+            description: 'Automatize prospecção e qualificação de leads. Este agente gerencia o funil de vendas, agenda reuniões e mantém interações personalizadas com potenciais clientes.'
           }, {
-            name: 'Realty AI Pro',
-            sector: 'Imobiliário',
-            description: 'Otimização de vendas imobiliárias'
+            name: 'Agente Clínicas',
+            icon: '🏥',
+            description: 'Otimize o gerenciamento de pacientes e consultas. Este agente organiza agendamentos, envia lembretes e facilita a comunicação entre equipe médica e pacientes.'
           }, {
-            name: 'Legal AI Assistant',
-            sector: 'Jurídico',
-            description: 'Assistente jurídico inteligente'
+            name: 'Agente Imobiliárias',
+            icon: '🏠',
+            description: 'Transforme a experiência de compra e venda de imóveis. Este agente gerencia listagens, organiza visitas e qualifica leads para corretores, aumentando a eficiência do negócio.'
           }, {
-            name: 'FinanceBot AI',
-            sector: 'Financeiro',
-            description: 'Análise financeira avançada'
-          }].map((agent, index) => <div key={index} className="nexus-card hover-scale animate-fade-in text-center">
-                <div className="w-16 h-16 bg-accent-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <Brain className="h-8 w-8 text-white" />
+            name: 'Agente Advocacia',
+            icon: '⚖️',
+            description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
+          }].map((agent, index) => (
+              <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40 transition-all duration-300 hover:transform hover:scale-105">
+                <div className="w-16 h-16 bg-gradient-to-br from-nexus-purple to-nexus-violet rounded-lg mx-auto mb-4 flex items-center justify-center text-2xl">
+                  {agent.icon}
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-white">{agent.name}</h3>
-                <div className="text-nexus-purple text-sm font-medium mb-2">{agent.sector}</div>
-                <p className="text-gray-400 text-sm">{agent.description}</p>
-              </div>)}
+                <h3 className="text-lg font-bold mb-4 text-white text-center">{agent.name}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed mb-6">{agent.description}</p>
+                <Button className="w-full bg-gradient-to-r from-nexus-purple to-nexus-violet text-white font-medium py-2 px-4 rounded-lg hover:from-nexus-violet hover:to-nexus-purple transition-all duration-300">
+                  TESTAR AGORA
+                </Button>
+              </div>
+            ))}
           </div>
           
           <div className="text-center">
