@@ -68,7 +68,7 @@
   }
 
   .hover-scale {
-    @apply transition-transform duration-100 hover:scale-102;
+    @apply transition-transform duration-100 hover:scale-105;
   }
 
   .glass-effect {
@@ -80,7 +80,7 @@
   }
 
   .nexus-button {
-    @apply bg-purple-gradient text-white font-medium py-3 px-6 rounded-lg hover:scale-102 transition-transform duration-100 shadow-lg;
+    @apply bg-purple-gradient text-white font-medium py-3 px-6 rounded-lg hover:scale-105 transition-transform duration-100 shadow-lg;
   }
 
   .nexus-input {
