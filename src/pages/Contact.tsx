@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -301,7 +300,7 @@ const Contact: React.FC = () => {
                           <SelectValue placeholder="Selecione um agente (opcional)" />
                         </SelectTrigger>
                         <SelectContent className="bg-nexus-light border-white/20">
-                          <SelectItem value="" className="text-white hover:bg-nexus-purple/20">
+                          <SelectItem value="none" className="text-white hover:bg-nexus-purple/20">
                             Nenhum agente específico
                           </SelectItem>
                           {agents.map((agent) => (
