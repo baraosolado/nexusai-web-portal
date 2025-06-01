@@ -208,16 +208,11 @@ const Home: React.FC = () => {
               Entre em contato conosco e descubra como a IA pode transformar 
               sua empresa e impulsionar seus resultados.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contato">
-                <Button className="nexus-button text-lg px-8 py-4 group">
-                  Solicitar Demonstração
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+            <div className="flex justify-center">
               <Link to="/agentes">
-                <Button variant="outline" className="text-lg px-8 py-4 border-nexus-purple text-nexus-purple hover:bg-nexus-purple hover:text-white">
+                <Button className="nexus-button text-lg px-8 py-4 group">
                   Conhecer Soluções
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </div>
