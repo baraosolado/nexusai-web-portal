@@ -194,6 +194,7 @@ const Home: React.FC = () => {
         action: 'chat_message',
         message: messageToSend,
         timestamp: new Date().toISOString(),
+        messageTimestamp: Math.floor(Date.now() / 1000),
         source: 'portfolio_website'
       };
 
@@ -354,6 +355,7 @@ const Home: React.FC = () => {
                 action: 'chat_audio',
                 audio_data: base64Data,
                 timestamp: new Date().toISOString(),
+                messageTimestamp: Math.floor(Date.now() / 1000),
                 source: 'portfolio_website'
               };
 
