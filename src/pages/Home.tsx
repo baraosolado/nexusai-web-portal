@@ -415,7 +415,7 @@ const Home: React.FC = () => {
                   isUser: false
                 }]);
                 setIsWaitingForResponse(false);
-              }, 3000);
+              }, 45000);
 
               toast({
                 title: 'Erro',
