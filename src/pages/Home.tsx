@@ -70,12 +70,20 @@ const Home: React.FC = () => {
       return response.trim();
     }
 
-    // Se for array, verificar se o primeiro item tem a propriedade 'output'
+    // Se for array, verificar diferentes formatos
     if (Array.isArray(response) && response.length > 0) {
       console.log('Resposta é array, analisando primeiro item:', response[0]);
       const firstItem = response[0];
 
-      // Verificar se o primeiro item tem a propriedade 'output'
+      // Novo formato: verificar se tem propriedade 'message'
+      if (firstItem && typeof firstItem === 'object' && firstItem.message) {
+        console.log('Encontrado message no array:', firstItem.message);
+        if (typeof firstItem.message === 'string' && firstItem.message.trim()) {
+          return firstItem.message.trim();
+        }
+      }
+
+      // Formato anterior: verificar se tem propriedade 'output'
       if (firstItem && typeof firstItem === 'object' && firstItem.output) {
         console.log('Encontrado output no array:', firstItem.output);
         if (typeof firstItem.output === 'string' && firstItem.output.trim()) {
@@ -83,13 +91,19 @@ const Home: React.FC = () => {
         }
       }
 
-      // Se não encontrou output, tentar extrair recursivamente do primeiro item
+      // Se não encontrou message ou output, tentar extrair recursivamente do primeiro item
       return extractMessage(firstItem);
     }
 
     // Se for objeto, tentar encontrar a mensagem
     if (response && typeof response === 'object') {
-      // Verificar primeiro se tem a propriedade 'output' (formato específico do seu backend)
+      // Verificar primeiro se tem a propriedade 'message' (novo formato)
+      if (response.message && typeof response.message === 'string' && response.message.trim()) {
+        console.log('Mensagem encontrada na propriedade message:', response.message);
+        return response.message.trim();
+      }
+
+      // Verificar se tem a propriedade 'output' (formato anterior)
       if (response.output && typeof response.output === 'string' && response.output.trim()) {
         console.log('Mensagem encontrada na propriedade output:', response.output);
         return response.output.trim();
@@ -97,7 +111,7 @@ const Home: React.FC = () => {
 
       // Lista expandida de possíveis chaves que podem conter a mensagem
       const possibleKeys = [
-        'message', 'response', 'text', 'content', 'agent_response',
+        'response', 'text', 'content', 'agent_response',
         'answer', 'reply', 'result', 'data', 'body', 'payload',
         'response_text', 'bot_response', 'agent_message', 'ai_response',
         'success', 'msg', 'responseText', 'value'
