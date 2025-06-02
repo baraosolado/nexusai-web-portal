@@ -222,8 +222,8 @@ const Home: React.FC = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        console.log('Timeout: Requisição cancelada após 45 segundos');
-      }, 45000);
+        console.log('Timeout: Requisição cancelada após 30 segundos');
+      }, 30000);
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
@@ -256,24 +256,24 @@ const Home: React.FC = () => {
               console.log('=== RESPOSTA PARSEADA ===');
               console.log(JSON.stringify(webhookResponse, null, 2));
               console.log('========================');
-              
+
               agentMessage = extractMessage(webhookResponse);
               console.log('=== MENSAGEM EXTRAÍDA ===');
               console.log('Resultado da extração:', agentMessage);
               console.log('========================');
-              
+
               // Se a mensagem extraída for genérica, tentar métodos alternativos
               if (agentMessage === "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve." ||
                   agentMessage === "Sua mensagem foi recebida! Nossa equipe analisará e responderá em breve." ||
                   agentMessage === "Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!") {
                 console.log('=== TENTANDO MÉTODOS ALTERNATIVOS ===');
-                
+
                 // Método 1: Verificar se é string diretamente
                 if (typeof webhookResponse === 'string') {
                   agentMessage = webhookResponse;
                   console.log('Método 1 - String direta:', agentMessage);
                 }
-                
+
                 // Método 2: Verificar propriedades específicas
                 else if (webhookResponse) {
                   const possibleMessages = [
@@ -285,13 +285,13 @@ const Home: React.FC = () => {
                     webhookResponse.answer,
                     webhookResponse.reply
                   ].filter(msg => msg && typeof msg === 'string' && msg.trim().length > 0);
-                  
+
                   if (possibleMessages.length > 0) {
                     agentMessage = possibleMessages[0];
                     console.log('Método 2 - Propriedade encontrada:', agentMessage);
                   }
                 }
-                
+
                 // Método 3: Se for array, pegar primeiro item válido
                 if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
                   const firstItem = webhookResponse[0];
@@ -303,10 +303,10 @@ const Home: React.FC = () => {
                     }
                   }
                 }
-                
+
                 console.log('===================================');
               }
-              
+
             } catch (parseError) {
               console.log('Não foi possível fazer parse do JSON, usando texto diretamente:', responseText);
               // Se não conseguir fazer parse, usar o texto diretamente
@@ -438,8 +438,8 @@ const Home: React.FC = () => {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
                 controller.abort();
-                console.log('Timeout: Requisição cancelada após 45 segundos');
-              }, 45000);
+                console.log('Timeout: Requisição cancelada após 30 segundos');
+              }, 30000);
 
               const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
                 method: 'POST',
@@ -595,8 +595,8 @@ const Home: React.FC = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        console.log('Timeout: Requisição cancelada após 45 segundos');
-      }, 45000);
+        console.log('Timeout: Requisição cancelada após 30 segundos');
+      }, 30000);
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
@@ -967,6 +967,12 @@ const Home: React.FC = () => {
               <div className="mt-2 flex items-center justify-center text-red-400 text-sm">
                 <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse mr-2"></div>
                 Gravando áudio...
+              </div>
+            )}
+             {isWaitingForResponse && (
+              <div className="mt-2 flex items-center justify-center text-yellow-400 text-sm">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse mr-2"></div>
+                Aguardando resposta...
               </div>
             )}
           </div>
