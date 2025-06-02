@@ -500,8 +500,10 @@ const Home: React.FC = () => {
         agent_type: selectedAgent.type,
         agent_id: agentId,
         user_id: userId,
+        message_id: messageId,
         action: 'test_agent',
         timestamp: new Date().toISOString(),
+        messageTimestamp: Math.floor(Date.now() / 1000),
         source: 'portfolio_website',
         user_info: {
           name: formData.name,
