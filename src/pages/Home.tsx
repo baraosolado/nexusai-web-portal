@@ -35,13 +35,7 @@ const Home: React.FC = () => {
     return Math.floor(Math.random() * 1000000000).toString();
   };
 
-  const [userId, setUserId] = useState(generateSessionId());
-
-  useEffect(() => {
-    if (!userId) {
-      setUserId(generateSessionId());
-    }
-  }, []);
+  const [userId, setUserId] = useState<string>('');
 
   // Scroll automático para a última mensagem
   const scrollToBottom = () => {
@@ -149,6 +143,11 @@ const Home: React.FC = () => {
 
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
+    
+    // Gerar novo userId para esta sessão de chat
+    const newUserId = generateSessionId();
+    setUserId(newUserId);
+    
     setIsChatOpen(true);
     // Mensagem inicial do bot
     setMessages([{
@@ -765,7 +764,13 @@ const Home: React.FC = () => {
       </section>
 
       {/* Modal de Chat */}
-      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+      <Dialog open={isChatOpen} onOpenChange={(open) => {
+        setIsChatOpen(open);
+        // Resetar userId quando modal for fechado
+        if (!open) {
+          setUserId('');
+        }
+      }}>
         <DialogContent className="sm:max-w-[400px] h-[600px] bg-nexus-darker border border-nexus-purple/20 p-0 flex flex-col">
           <DialogHeader className="p-4 border-b border-nexus-purple/20">
             <div className="flex items-center justify-between">
@@ -783,7 +788,10 @@ const Home: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsChatOpen(false)}
+                onClick={() => {
+                  setIsChatOpen(false);
+                  setUserId(''); // Resetar userId ao fechar
+                }}
                 className="text-gray-400 hover:text-white"
               >
                 <X className="h-4 w-4" />
