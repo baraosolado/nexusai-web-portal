@@ -497,6 +497,9 @@ const Home: React.FC = () => {
     try {
       const agentId = agentIdentifiers[selectedAgent.type] || selectedAgent.type;
 
+      // Gerar um message_id único para esta ação de teste de agente
+      const messageId = generateSessionId();
+
       const webhookData = {
         agent_name: selectedAgent.name,
         agent_type: selectedAgent.type,
