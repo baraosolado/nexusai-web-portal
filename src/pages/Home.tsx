@@ -26,12 +26,12 @@ const Home: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   // Função para gerar números aleatórios simples para session_id
   const generateSessionId = () => {
     return Math.floor(Math.random() * 1000000000).toString();
   };
-  
+
   const [userId, setUserId] = useState(generateSessionId());
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const Home: React.FC = () => {
     }]);
   };
 
-
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || !selectedAgent) return;
@@ -92,6 +92,7 @@ const Home: React.FC = () => {
     };
 
     setMessages(prev => [...prev, newMessage]);
+    setIsWaitingForResponse(true); // Inicia o indicador de carregamento
 
     // Chamar webhook com a mensagem do usuário
     try {
@@ -110,13 +111,19 @@ const Home: React.FC = () => {
 
       console.log('Enviando dados para webhook:', webhookData);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(webhookData)
+        body: JSON.stringify(webhookData),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       console.log('Status da resposta:', response.status);
       console.log('Headers da resposta:', response.headers);
@@ -139,36 +146,36 @@ const Home: React.FC = () => {
         // Função simplificada para extrair a mensagem da resposta
         const extractMessage = (response: any): string => {
           console.log('Extraindo mensagem da resposta completa:', JSON.stringify(response, null, 2));
-          
+
           // Se for string diretamente, retornar
           if (typeof response === 'string' && response.trim()) {
             console.log('Resposta é string válida:', response);
             return response.trim();
           }
-          
+
           // Se for objeto, tentar encontrar a mensagem
           if (response && typeof response === 'object') {
             // Converter para string para análise visual
             const responseStr = JSON.stringify(response);
             console.log('Resposta como string para análise:', responseStr);
-            
+
             // Lista expandida de possíveis chaves que podem conter a mensagem
             const possibleKeys = [
               'output', 'agent_response', 'message', 'response', 'text', 'content', 
               'answer', 'reply', 'result', 'data', 'body', 'success', 'payload',
               'response_text', 'bot_response', 'agent_message', 'ai_response'
             ];
-            
+
             // Tentar encontrar a mensagem nas chaves conhecidas
             for (const key of possibleKeys) {
               if (response[key] !== undefined && response[key] !== null) {
                 console.log(`Verificando chave '${key}':`, response[key]);
-                
+
                 if (typeof response[key] === 'string' && response[key].trim()) {
                   console.log(`Mensagem encontrada na chave '${key}':`, response[key]);
                   return response[key].trim();
                 }
-                
+
                 // Se for objeto ou array, tentar extrair recursivamente
                 if (typeof response[key] === 'object') {
                   const nestedResult = extractMessage(response[key]);
@@ -178,13 +185,13 @@ const Home: React.FC = () => {
                 }
               }
             }
-            
+
             // Se for array, tentar o primeiro item
             if (Array.isArray(response) && response.length > 0) {
               console.log('Resposta é array, tentando primeiro item:', response[0]);
               return extractMessage(response[0]);
             }
-            
+
             // Buscar qualquer string não vazia no objeto
             for (const [key, value] of Object.entries(response)) {
               if (typeof value === 'string' && value.trim().length > 5) { // Mínimo 5 caracteres
@@ -192,14 +199,14 @@ const Home: React.FC = () => {
                 return value.trim();
               }
             }
-            
+
             // Se chegou até aqui, tentar converter o objeto inteiro para string se for pequeno
             if (responseStr.length < 200) {
               console.log('Usando objeto inteiro como string:', responseStr);
               return responseStr;
             }
           }
-          
+
           console.log('Nenhuma mensagem válida encontrada, usando mensagem padrão');
           return "Desculpe, não consegui processar sua mensagem. Tente novamente.";
         };
@@ -210,7 +217,7 @@ const Home: React.FC = () => {
         // Verificar se a mensagem é válida antes de adicionar
         if (agentMessage && agentMessage.trim()) {
           console.log('Adicionando mensagem válida do bot ao estado:', agentMessage);
-          
+
           // Adicionar resposta do bot com delay menor para melhor UX
           setTimeout(() => {
             setMessages(prev => {
@@ -225,6 +232,7 @@ const Home: React.FC = () => {
               console.log('Estado completo das mensagens após adição:', updatedMessages);
               return updatedMessages;
             });
+            setIsWaitingForResponse(false); // Remove o indicador de carregamento
           }, 500);
         } else {
           console.error('Mensagem do agente está vazia ou inválida:', agentMessage);
@@ -236,6 +244,7 @@ const Home: React.FC = () => {
               time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
               isUser: false
             }]);
+            setIsWaitingForResponse(false); // Remove o indicador de carregamento
           }, 500);
         }
       } else {
@@ -253,6 +262,7 @@ const Home: React.FC = () => {
           time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           isUser: false
         }]);
+        setIsWaitingForResponse(false); // Remove o indicador de carregamento
       }, 500);
 
       toast({
@@ -286,6 +296,7 @@ const Home: React.FC = () => {
         };
 
         setMessages(prev => [...prev, newMessage]);
+        setIsWaitingForResponse(true);
 
         // Chamar webhook com áudio
         try {
@@ -296,7 +307,7 @@ const Home: React.FC = () => {
           reader.onloadend = async () => {
             try {
               const base64Audio = reader.result as string;
-              
+
               // Remove o prefixo "data:audio/wav;base64," para enviar apenas o base64 puro
               const base64Data = base64Audio.split(',')[1];
 
@@ -313,13 +324,19 @@ const Home: React.FC = () => {
                 source: 'portfolio_website'
               };
 
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+
               const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(webhookData)
+                body: JSON.stringify(webhookData),
+                signal: controller.signal
               });
+
+              clearTimeout(timeoutId);
 
               console.log('Status da resposta do webhook para áudio:', response.status);
 
@@ -341,11 +358,11 @@ const Home: React.FC = () => {
                 const agentMessage = extractMessage(webhookResponse);
 
                 console.log('Mensagem de áudio extraída do agente:', agentMessage);
-                
+
                 // Verificar se a mensagem é válida antes de adicionar
                 if (agentMessage && agentMessage.trim()) {
                   console.log('Adicionando resposta válida de áudio do bot:', agentMessage);
-                  
+
                   setTimeout(() => {
                     setMessages(prev => {
                       const newBotMessage = {
@@ -359,6 +376,7 @@ const Home: React.FC = () => {
                       console.log('Estado completo das mensagens de áudio após adição:', updatedMessages);
                       return updatedMessages;
                     });
+                    setIsWaitingForResponse(false);
                   }, 500);
                 } else {
                   console.error('Mensagem de áudio do agente está vazia ou inválida:', agentMessage);
@@ -370,6 +388,7 @@ const Home: React.FC = () => {
                       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                       isUser: false
                     }]);
+                    setIsWaitingForResponse(false);
                   }, 500);
                 }
               } else {
@@ -387,6 +406,7 @@ const Home: React.FC = () => {
                   time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                   isUser: false
                 }]);
+                setIsWaitingForResponse(false);
               }, 500);
 
               toast({
@@ -407,6 +427,7 @@ const Home: React.FC = () => {
               time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
               isUser: false
             }]);
+            setIsWaitingForResponse(false);
           }, 500);
         }
 
@@ -458,13 +479,19 @@ const Home: React.FC = () => {
         }
       };
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(webhookData)
+        body: JSON.stringify(webhookData),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         toast({
@@ -707,13 +734,11 @@ const Home: React.FC = () => {
                   Conhecer Soluções
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </Link
             </div>
           </div>
         </div>
       </section>
-
-
 
       {/* Modal de Chat */}
       <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
@@ -772,6 +797,13 @@ const Home: React.FC = () => {
                 </div>
               </div>
             ))}
+            {isWaitingForResponse && (
+              <div className="flex justify-center">
+                <p className="text-sm text-gray-400">
+                  Aguardando resposta...
+                </p>
+              </div>
+            )}
             {/* Elemento para scroll automático */}
             <div ref={messagesEndRef} />
           </div>
