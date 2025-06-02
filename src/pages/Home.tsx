@@ -112,7 +112,10 @@ const Home: React.FC = () => {
       console.log('Enviando dados para webhook:', webhookData);
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.log('Timeout: Requisição cancelada após 30 segundos');
+      }, 30000); // 30 segundos de timeout
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
@@ -325,7 +328,10 @@ const Home: React.FC = () => {
               };
 
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+              const timeoutId = setTimeout(() => {
+                controller.abort();
+                console.log('Timeout: Requisição cancelada após 30 segundos');
+              }, 30000); // 30 segundos de timeout
 
               const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
                 method: 'POST',
@@ -480,7 +486,10 @@ const Home: React.FC = () => {
       };
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.log('Timeout: Requisição cancelada após 30 segundos');
+      }, 30000); // 30 segundos de timeout
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
