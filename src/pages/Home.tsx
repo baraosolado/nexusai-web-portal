@@ -62,11 +62,13 @@ const Home: React.FC = () => {
 
   // Função para extrair mensagem da resposta do webhook
   const extractMessage = (response: any): string => {
-    console.log('Extraindo mensagem da resposta completa:', JSON.stringify(response, null, 2));
+    console.log('=== INICIANDO EXTRAÇÃO DE MENSAGEM ===');
+    console.log('Tipo da resposta:', typeof response);
+    console.log('Resposta completa:', JSON.stringify(response, null, 2));
 
     // Se for string diretamente, retornar
     if (typeof response === 'string' && response.trim()) {
-      console.log('Resposta é string válida:', response);
+      console.log('✅ SUCESSO: Resposta é string válida:', response);
       return response.trim();
     }
 
@@ -77,7 +79,7 @@ const Home: React.FC = () => {
 
       // Novo formato: verificar se tem propriedade 'message'
       if (firstItem && typeof firstItem === 'object' && firstItem.message) {
-        console.log('Encontrado message no array:', firstItem.message);
+        console.log('✅ SUCESSO: Encontrado message no array:', firstItem.message);
         if (typeof firstItem.message === 'string' && firstItem.message.trim()) {
           return firstItem.message.trim();
         }
@@ -85,7 +87,7 @@ const Home: React.FC = () => {
 
       // Formato anterior: verificar se tem propriedade 'output'
       if (firstItem && typeof firstItem === 'object' && firstItem.output) {
-        console.log('Encontrado output no array:', firstItem.output);
+        console.log('✅ SUCESSO: Encontrado output no array:', firstItem.output);
         if (typeof firstItem.output === 'string' && firstItem.output.trim()) {
           return firstItem.output.trim();
         }
@@ -99,13 +101,13 @@ const Home: React.FC = () => {
     if (response && typeof response === 'object') {
       // Verificar primeiro se tem a propriedade 'message' (novo formato)
       if (response.message && typeof response.message === 'string' && response.message.trim()) {
-        console.log('Mensagem encontrada na propriedade message:', response.message);
+        console.log('✅ SUCESSO: Mensagem encontrada na propriedade message:', response.message);
         return response.message.trim();
       }
 
       // Verificar se tem a propriedade 'output' (formato anterior)
       if (response.output && typeof response.output === 'string' && response.output.trim()) {
-        console.log('Mensagem encontrada na propriedade output:', response.output);
+        console.log('✅ SUCESSO: Mensagem encontrada na propriedade output:', response.output);
         return response.output.trim();
       }
 
@@ -150,7 +152,8 @@ const Home: React.FC = () => {
       return "Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!";
     }
 
-    console.log('Nenhuma mensagem válida encontrada');
+    console.log('❌ FALHA: Nenhuma mensagem válida encontrada na resposta');
+    console.log('=== FIM DA EXTRAÇÃO ===');
     return "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve.";
   };
 
@@ -237,7 +240,10 @@ const Home: React.FC = () => {
 
       if (response.ok) {
         const responseText = await response.text();
-        console.log('Resposta bruta do webhook:', responseText);
+        console.log('=== RESPOSTA COMPLETA DO WEBHOOK ===');
+        console.log('Texto bruto:', responseText);
+        console.log('Comprimento:', responseText.length);
+        console.log('=====================================');
 
         let webhookResponse;
         let agentMessage = '';
@@ -247,8 +253,60 @@ const Home: React.FC = () => {
             // Tentar fazer parse como JSON
             try {
               webhookResponse = JSON.parse(responseText);
-              console.log('Resposta parseada do webhook:', webhookResponse);
+              console.log('=== RESPOSTA PARSEADA ===');
+              console.log(JSON.stringify(webhookResponse, null, 2));
+              console.log('========================');
+              
               agentMessage = extractMessage(webhookResponse);
+              console.log('=== MENSAGEM EXTRAÍDA ===');
+              console.log('Resultado da extração:', agentMessage);
+              console.log('========================');
+              
+              // Se a mensagem extraída for genérica, tentar métodos alternativos
+              if (agentMessage === "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve." ||
+                  agentMessage === "Sua mensagem foi recebida! Nossa equipe analisará e responderá em breve." ||
+                  agentMessage === "Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!") {
+                console.log('=== TENTANDO MÉTODOS ALTERNATIVOS ===');
+                
+                // Método 1: Verificar se é string diretamente
+                if (typeof webhookResponse === 'string') {
+                  agentMessage = webhookResponse;
+                  console.log('Método 1 - String direta:', agentMessage);
+                }
+                
+                // Método 2: Verificar propriedades específicas
+                else if (webhookResponse) {
+                  const possibleMessages = [
+                    webhookResponse.response,
+                    webhookResponse.text,
+                    webhookResponse.message,
+                    webhookResponse.output,
+                    webhookResponse.content,
+                    webhookResponse.answer,
+                    webhookResponse.reply
+                  ].filter(msg => msg && typeof msg === 'string' && msg.trim().length > 0);
+                  
+                  if (possibleMessages.length > 0) {
+                    agentMessage = possibleMessages[0];
+                    console.log('Método 2 - Propriedade encontrada:', agentMessage);
+                  }
+                }
+                
+                // Método 3: Se for array, pegar primeiro item válido
+                if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
+                  const firstItem = webhookResponse[0];
+                  if (firstItem && typeof firstItem === 'object') {
+                    const itemMessage = firstItem.message || firstItem.text || firstItem.response || firstItem.output;
+                    if (itemMessage && typeof itemMessage === 'string') {
+                      agentMessage = itemMessage;
+                      console.log('Método 3 - Array primeiro item:', agentMessage);
+                    }
+                  }
+                }
+                
+                console.log('===================================');
+              }
+              
             } catch (parseError) {
               console.log('Não foi possível fazer parse do JSON, usando texto diretamente:', responseText);
               // Se não conseguir fazer parse, usar o texto diretamente
@@ -263,7 +321,9 @@ const Home: React.FC = () => {
           agentMessage = "Mensagem recebida com sucesso! Em breve nossa equipe entrará em contato.";
         }
 
-        console.log('Mensagem final extraída do agente:', agentMessage);
+        console.log('=== MENSAGEM FINAL ===');
+        console.log('Mensagem que será exibida:', agentMessage);
+        console.log('====================');
 
         // Sempre adicionar uma resposta, mesmo que seja genérica
         setTimeout(() => {
