@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Send, Mic, MicOff, X } from 'lucide-react';
+
 const Home: React.FC = () => {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +27,7 @@ const Home: React.FC = () => {
   const [currentMessage, setCurrentMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Função para gerar números aleatórios simples para session_id
@@ -64,6 +67,74 @@ const Home: React.FC = () => {
     psicologo: 'agente-para-psicologos'
   };
 
+  // Função para extrair mensagem da resposta do webhook
+  const extractMessage = (response: any): string => {
+    console.log('Extraindo mensagem da resposta completa:', JSON.stringify(response, null, 2));
+
+    // Se for string diretamente, retornar
+    if (typeof response === 'string' && response.trim()) {
+      console.log('Resposta é string válida:', response);
+      return response.trim();
+    }
+
+    // Se for objeto, tentar encontrar a mensagem
+    if (response && typeof response === 'object') {
+      // Converter para string para análise visual
+      const responseStr = JSON.stringify(response);
+      console.log('Resposta como string para análise:', responseStr);
+
+      // Lista expandida de possíveis chaves que podem conter a mensagem
+      const possibleKeys = [
+        'output', 'agent_response', 'message', 'response', 'text', 'content', 
+        'answer', 'reply', 'result', 'data', 'body', 'success', 'payload',
+        'response_text', 'bot_response', 'agent_message', 'ai_response'
+      ];
+
+      // Tentar encontrar a mensagem nas chaves conhecidas
+      for (const key of possibleKeys) {
+        if (response[key] !== undefined && response[key] !== null) {
+          console.log(`Verificando chave '${key}':`, response[key]);
+
+          if (typeof response[key] === 'string' && response[key].trim()) {
+            console.log(`Mensagem encontrada na chave '${key}':`, response[key]);
+            return response[key].trim();
+          }
+
+          // Se for objeto ou array, tentar extrair recursivamente
+          if (typeof response[key] === 'object') {
+            const nestedResult = extractMessage(response[key]);
+            if (nestedResult && nestedResult !== "Desculpe, não consegui processar sua mensagem. Tente novamente.") {
+              return nestedResult;
+            }
+          }
+        }
+      }
+
+      // Se for array, tentar o primeiro item
+      if (Array.isArray(response) && response.length > 0) {
+        console.log('Resposta é array, tentando primeiro item:', response[0]);
+        return extractMessage(response[0]);
+      }
+
+      // Buscar qualquer string não vazia no objeto
+      for (const [key, value] of Object.entries(response)) {
+        if (typeof value === 'string' && value.trim().length > 5) { // Mínimo 5 caracteres
+          console.log(`Usando string encontrada na chave '${key}':`, value);
+          return value.trim();
+        }
+      }
+
+      // Se chegou até aqui, tentar converter o objeto inteiro para string se for pequeno
+      if (responseStr.length < 200) {
+        console.log('Usando objeto inteiro como string:', responseStr);
+        return responseStr;
+      }
+    }
+
+    console.log('Nenhuma mensagem válida encontrada, usando mensagem padrão');
+    return "Desculpe, não consegui processar sua mensagem. Tente novamente.";
+  };
+
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
     setIsChatOpen(true);
@@ -75,8 +146,6 @@ const Home: React.FC = () => {
       isUser: false
     }]);
   };
-
-  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || !selectedAgent) return;
@@ -92,7 +161,7 @@ const Home: React.FC = () => {
     };
 
     setMessages(prev => [...prev, newMessage]);
-    setIsWaitingForResponse(true); // Inicia o indicador de carregamento
+    setIsWaitingForResponse(true);
 
     // Chamar webhook com a mensagem do usuário
     try {
@@ -115,7 +184,7 @@ const Home: React.FC = () => {
       const timeoutId = setTimeout(() => {
         controller.abort();
         console.log('Timeout: Requisição cancelada após 30 segundos');
-      }, 30000); // 30 segundos de timeout
+      }, 30000);
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
@@ -129,10 +198,8 @@ const Home: React.FC = () => {
       clearTimeout(timeoutId);
 
       console.log('Status da resposta:', response.status);
-      console.log('Headers da resposta:', response.headers);
 
       if (response.ok) {
-        // Processar resposta do webhook
         const responseText = await response.text();
         console.log('Resposta bruta do webhook:', responseText);
 
@@ -146,82 +213,12 @@ const Home: React.FC = () => {
 
         console.log('Resposta parseada do webhook:', webhookResponse);
 
-        // Função simplificada para extrair a mensagem da resposta
-        const extractMessage = (response: any): string => {
-          console.log('Extraindo mensagem da resposta completa:', JSON.stringify(response, null, 2));
-
-          // Se for string diretamente, retornar
-          if (typeof response === 'string' && response.trim()) {
-            console.log('Resposta é string válida:', response);
-            return response.trim();
-          }
-
-          // Se for objeto, tentar encontrar a mensagem
-          if (response && typeof response === 'object') {
-            // Converter para string para análise visual
-            const responseStr = JSON.stringify(response);
-            console.log('Resposta como string para análise:', responseStr);
-
-            // Lista expandida de possíveis chaves que podem conter a mensagem
-            const possibleKeys = [
-              'output', 'agent_response', 'message', 'response', 'text', 'content', 
-              'answer', 'reply', 'result', 'data', 'body', 'success', 'payload',
-              'response_text', 'bot_response', 'agent_message', 'ai_response'
-            ];
-
-            // Tentar encontrar a mensagem nas chaves conhecidas
-            for (const key of possibleKeys) {
-              if (response[key] !== undefined && response[key] !== null) {
-                console.log(`Verificando chave '${key}':`, response[key]);
-
-                if (typeof response[key] === 'string' && response[key].trim()) {
-                  console.log(`Mensagem encontrada na chave '${key}':`, response[key]);
-                  return response[key].trim();
-                }
-
-                // Se for objeto ou array, tentar extrair recursivamente
-                if (typeof response[key] === 'object') {
-                  const nestedResult = extractMessage(response[key]);
-                  if (nestedResult && nestedResult !== "Desculpe, não consegui processar sua mensagem. Tente novamente.") {
-                    return nestedResult;
-                  }
-                }
-              }
-            }
-
-            // Se for array, tentar o primeiro item
-            if (Array.isArray(response) && response.length > 0) {
-              console.log('Resposta é array, tentando primeiro item:', response[0]);
-              return extractMessage(response[0]);
-            }
-
-            // Buscar qualquer string não vazia no objeto
-            for (const [key, value] of Object.entries(response)) {
-              if (typeof value === 'string' && value.trim().length > 5) { // Mínimo 5 caracteres
-                console.log(`Usando string encontrada na chave '${key}':`, value);
-                return value.trim();
-              }
-            }
-
-            // Se chegou até aqui, tentar converter o objeto inteiro para string se for pequeno
-            if (responseStr.length < 200) {
-              console.log('Usando objeto inteiro como string:', responseStr);
-              return responseStr;
-            }
-          }
-
-          console.log('Nenhuma mensagem válida encontrada, usando mensagem padrão');
-          return "Desculpe, não consegui processar sua mensagem. Tente novamente.";
-        };
-
         const agentMessage = extractMessage(webhookResponse);
         console.log('Mensagem final extraída do agente:', agentMessage);
 
-        // Verificar se a mensagem é válida antes de adicionar
         if (agentMessage && agentMessage.trim()) {
           console.log('Adicionando mensagem válida do bot ao estado:', agentMessage);
 
-          // Adicionar resposta do bot com delay menor para melhor UX
           setTimeout(() => {
             setMessages(prev => {
               const newBotMessage = {
@@ -235,11 +232,10 @@ const Home: React.FC = () => {
               console.log('Estado completo das mensagens após adição:', updatedMessages);
               return updatedMessages;
             });
-            setIsWaitingForResponse(false); // Remove o indicador de carregamento
+            setIsWaitingForResponse(false);
           }, 500);
         } else {
           console.error('Mensagem do agente está vazia ou inválida:', agentMessage);
-          // Adicionar mensagem de erro mais específica
           setTimeout(() => {
             setMessages(prev => [...prev, {
               id: Date.now() + 1,
@@ -247,7 +243,7 @@ const Home: React.FC = () => {
               time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
               isUser: false
             }]);
-            setIsWaitingForResponse(false); // Remove o indicador de carregamento
+            setIsWaitingForResponse(false);
           }, 500);
         }
       } else {
@@ -257,7 +253,6 @@ const Home: React.FC = () => {
       }
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
-      // Adicionar mensagem de erro no chat
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
@@ -265,7 +260,7 @@ const Home: React.FC = () => {
           time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           isUser: false
         }]);
-        setIsWaitingForResponse(false); // Remove o indicador de carregamento
+        setIsWaitingForResponse(false);
       }, 500);
 
       toast({
@@ -301,17 +296,13 @@ const Home: React.FC = () => {
         setMessages(prev => [...prev, newMessage]);
         setIsWaitingForResponse(true);
 
-        // Chamar webhook com áudio
         try {
-          const agentId = agentIdentifiers[selectedAgent?.type] || selectedAgent?.type;
+          const agentId = agentIdentifiers[selectedAgent?.type || ''] || selectedAgent?.type;
 
-          // Convert audio to base64
           const reader = new FileReader();
           reader.onloadend = async () => {
             try {
               const base64Audio = reader.result as string;
-
-              // Remove o prefixo "data:audio/wav;base64," para enviar apenas o base64 puro
               const base64Data = base64Audio.split(',')[1];
 
               console.log('Enviando áudio em base64 para webhook');
@@ -331,7 +322,7 @@ const Home: React.FC = () => {
               const timeoutId = setTimeout(() => {
                 controller.abort();
                 console.log('Timeout: Requisição cancelada após 30 segundos');
-              }, 30000); // 30 segundos de timeout
+              }, 30000);
 
               const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
                 method: 'POST',
@@ -360,12 +351,9 @@ const Home: React.FC = () => {
 
                 console.log('Resposta parseada do webhook para áudio:', webhookResponse);
 
-                // Usar a mesma função melhorada de extração para áudio
                 const agentMessage = extractMessage(webhookResponse);
-
                 console.log('Mensagem de áudio extraída do agente:', agentMessage);
 
-                // Verificar se a mensagem é válida antes de adicionar
                 if (agentMessage && agentMessage.trim()) {
                   console.log('Adicionando resposta válida de áudio do bot:', agentMessage);
 
@@ -386,7 +374,6 @@ const Home: React.FC = () => {
                   }, 500);
                 } else {
                   console.error('Mensagem de áudio do agente está vazia ou inválida:', agentMessage);
-                  // Adicionar mensagem de erro para áudio
                   setTimeout(() => {
                     setMessages(prev => [...prev, {
                       id: Date.now() + 1,
@@ -404,7 +391,6 @@ const Home: React.FC = () => {
               }
             } catch (error) {
               console.error('Erro ao processar áudio:', error);
-              // Adicionar mensagem de erro para áudio
               setTimeout(() => {
                 setMessages(prev => [...prev, {
                   id: Date.now() + 1,
@@ -425,7 +411,6 @@ const Home: React.FC = () => {
           reader.readAsDataURL(audioBlob);
         } catch (error) {
           console.error('Erro ao enviar áudio:', error);
-          // Adicionar mensagem de erro para áudio
           setTimeout(() => {
             setMessages(prev => [...prev, {
               id: Date.now() + 1,
@@ -489,7 +474,7 @@ const Home: React.FC = () => {
       const timeoutId = setTimeout(() => {
         controller.abort();
         console.log('Timeout: Requisição cancelada após 30 segundos');
-      }, 30000); // 30 segundos de timeout
+      }, 30000);
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
@@ -547,6 +532,7 @@ const Home: React.FC = () => {
     title: 'Integrações Flexíveis',
     description: 'Conecte-se facilmente com suas ferramentas existentes através de APIs intuitivas e integrações nativas com sistemas populares.'
   }];
+
   const stats = [{
     number: '500+',
     label: 'Empresas Atendidas'
@@ -560,7 +546,9 @@ const Home: React.FC = () => {
     number: '24/7',
     label: 'Suporte Disponível'
   }];
-  return <Layout>
+
+  return (
+    <Layout>
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-br from-nexus-dark via-nexus-darker to-nexus-light opacity-90"></div>
@@ -591,7 +579,14 @@ const Home: React.FC = () => {
               sua empresa, otimizar processos e maximizar resultados.
             </p>
 
-
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link to="/agentes">
+                <Button className="nexus-button text-lg px-8 py-4 group">
+                  Conhecer Soluções
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Right content - 3D Robot */}
@@ -623,66 +618,66 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[{
-            name: 'Agente Comercial (SDR)',
-            type: 'sdr',
-            icon: <Users className="h-8 w-8" />,
-            description: 'Automatize prospecção e qualificação de leads. Este agente gerencia o funil de vendas, agenda reuniões e mantém interações personalizadas com potenciais clientes.'
-          }, {
-            name: 'Agente Clínicas',
-            type: 'clinicas',
-            icon: <Target className="h-8 w-8" />,
-            description: 'Otimize o gerenciamento de pacientes e consultas. Este agente organiza agendamentos, envia lembretes e facilita a comunicação entre equipe médica e pacientes.'
-          }, {
-            name: 'Agente Imobiliárias',
-            type: 'imobiliarias',
-            icon: <Brain className="h-8 w-8" />,
-            description: 'Transforme a experiência de compra e venda de imóveis. Este agente gerencia listagens, organiza visitas e qualifica leads para corretores, aumentando a eficiência do negócio.'
-          }, {
-            name: 'Agente Advocacia',
-            type: 'advocacia',
-            icon: <Shield className="h-8 w-8" />,
-            description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
-          }, {
-            name: 'Agente Financeiro',
-            type: 'financeiro',
-            icon: <TrendingUp className="h-8 w-8" />,
-            description: 'Optimize gestão financeira e análise de investimentos. Este agente automatiza relatórios, monitora fluxo de caixa e oferece insights para tomada de decisões estratégicas.'
-          }, {
-            name: 'Agente Vendedor Infoprodutos',
-            type: 'infoprodutos',
-            icon: <Zap className="h-8 w-8" />,
-            description: 'Maximize vendas de produtos digitais e cursos online. Este agente qualifica leads, automatiza funis de venda e personaliza ofertas baseadas no comportamento do cliente.'
-          }, {
-            name: 'Agente CS',
-            type: 'customer_service',
-            icon: <Users className="h-8 w-8" />,
-            description: 'Revolucione o atendimento ao cliente com respostas inteligentes 24/7. Este agente resolve dúvidas, escala problemas complexos e mantém histórico completo de interações.'
-          }, {
-            name: 'Agente Recuperador de Vendas',
-            type: 'recuperador_vendas',
-            icon: <Target className="h-8 w-8" />,
-            description: 'Reconquiste clientes e recupere vendas perdidas. Este agente identifica oportunidades de reengajamento, cria campanhas personalizadas e automatiza follow-ups estratégicos.'
-          }, {
-            name: 'Agente Recrutamento Pessoal (RH)',
-            type: 'rh',
-            icon: <Brain className="h-8 w-8" />,
-            description: 'Transforme processos de recrutamento e seleção. Este agente filtra currículos, agenda entrevistas, avalia candidatos e automatiza comunicação durante todo o processo seletivo.'
-          }, {
-            name: 'Agente para Escolas de Ensino',
-            type: 'escolas',
-            icon: <Shield className="h-8 w-8" />,
-            description: 'Modernize a gestão educacional e comunicação escolar. Este agente gerencia matrículas, comunica com pais, acompanha desempenho de alunos e automatiza processos administrativos.'
-          }, {
-            name: 'Agente Terapeuta',
-            type: 'terapeuta',
-            icon: <Brain className="h-8 w-8" />,
-            description: 'Apoie a prática terapêutica com agendamentos inteligentes. Este agente organiza sessões, envia lembretes, gerencia prontuários e facilita comunicação com pacientes.'
-          }, {
-            name: 'Agente para Psicólogos',
-            type: 'psicologo',
-            icon: <Brain className="h-8 w-8" />,
-            description: 'Otimize a prática psicológica com gestão automatizada. Este agente agenda consultas, mantém registros seguros, envia lembretes e auxilia na organização de tratamentos.'
-          }].map((agent, index) => (
+              name: 'Agente Comercial (SDR)',
+              type: 'sdr',
+              icon: <Users className="h-8 w-8" />,
+              description: 'Automatize prospecção e qualificação de leads. Este agente gerencia o funil de vendas, agenda reuniões e mantém interações personalizadas com potenciais clientes.'
+            }, {
+              name: 'Agente Clínicas',
+              type: 'clinicas',
+              icon: <Target className="h-8 w-8" />,
+              description: 'Otimize o gerenciamento de pacientes e consultas. Este agente organiza agendamentos, envia lembretes e facilita a comunicação entre equipe médica e pacientes.'
+            }, {
+              name: 'Agente Imobiliárias',
+              type: 'imobiliarias',
+              icon: <Brain className="h-8 w-8" />,
+              description: 'Transforme a experiência de compra e venda de imóveis. Este agente gerencia listagens, organiza visitas e qualifica leads para corretores, aumentando a eficiência do negócio.'
+            }, {
+              name: 'Agente Advocacia',
+              type: 'advocacia',
+              icon: <Shield className="h-8 w-8" />,
+              description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
+            }, {
+              name: 'Agente Financeiro',
+              type: 'financeiro',
+              icon: <TrendingUp className="h-8 w-8" />,
+              description: 'Optimize gestão financeira e análise de investimentos. Este agente automatiza relatórios, monitora fluxo de caixa e oferece insights para tomada de decisões estratégicas.'
+            }, {
+              name: 'Agente Vendedor Infoprodutos',
+              type: 'infoprodutos',
+              icon: <Zap className="h-8 w-8" />,
+              description: 'Maximize vendas de produtos digitais e cursos online. Este agente qualifica leads, automatiza funis de venda e personaliza ofertas baseadas no comportamento do cliente.'
+            }, {
+              name: 'Agente CS',
+              type: 'customer_service',
+              icon: <Users className="h-8 w-8" />,
+              description: 'Revolucione o atendimento ao cliente com respostas inteligentes 24/7. Este agente resolve dúvidas, escala problemas complexos e mantém histórico completo de interações.'
+            }, {
+              name: 'Agente Recuperador de Vendas',
+              type: 'recuperador_vendas',
+              icon: <Target className="h-8 w-8" />,
+              description: 'Reconquiste clientes e recupere vendas perdidas. Este agente identifica oportunidades de reengajamento, cria campanhas personalizadas e automatiza follow-ups estratégicos.'
+            }, {
+              name: 'Agente Recrutamento Pessoal (RH)',
+              type: 'rh',
+              icon: <Brain className="h-8 w-8" />,
+              description: 'Transforme processos de recrutamento e seleção. Este agente filtra currículos, agenda entrevistas, avalia candidatos e automatiza comunicação durante todo o processo seletivo.'
+            }, {
+              name: 'Agente para Escolas de Ensino',
+              type: 'escolas',
+              icon: <Shield className="h-8 w-8" />,
+              description: 'Modernize a gestão educacional e comunicação escolar. Este agente gerencia matrículas, comunica com pais, acompanha desempenho de alunos e automatiza processos administrativos.'
+            }, {
+              name: 'Agente Terapeuta',
+              type: 'terapeuta',
+              icon: <Brain className="h-8 w-8" />,
+              description: 'Apoie a prática terapêutica com agendamentos inteligentes. Este agente organiza sessões, envia lembretes, gerencia prontuários e facilita comunicação com pacientes.'
+            }, {
+              name: 'Agente para Psicólogos',
+              type: 'psicologo',
+              icon: <Brain className="h-8 w-8" />,
+              description: 'Otimize a prática psicológica com gestão automatizada. Este agente agenda consultas, mantém registros seguros, envia lembretes e auxilia na organização de tratamentos.'
+            }].map((agent, index) => (
               <div key={index} className="agent-card bg-gradient-to-br from-nexus-darker to-nexus-light border border-nexus-purple/20 rounded-lg p-6 hover:border-nexus-purple/40 flex flex-col h-full">
                 <div className="w-16 h-16 bg-gradient-to-br from-nexus-purple to-nexus-violet rounded-lg mx-auto mb-4 flex items-center justify-center text-white">
                   {agent.icon}
@@ -715,13 +710,15 @@ const Home: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => <div key={index} className="nexus-card hover-scale animate-fade-in group">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="nexus-card hover-scale animate-fade-in group">
                 <div className="w-12 h-12 bg-purple-gradient rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <benefit.icon className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-white">{benefit.title}</h3>
                 <p className="text-gray-400">{benefit.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -813,7 +810,6 @@ const Home: React.FC = () => {
                 </p>
               </div>
             )}
-            {/* Elemento para scroll automático */}
             <div ref={messagesEndRef} />
           </div>
 
@@ -863,6 +859,8 @@ const Home: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </Layout>;
+    </Layout>
+  );
 };
+
 export default Home;
