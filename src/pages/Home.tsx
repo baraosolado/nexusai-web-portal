@@ -136,88 +136,108 @@ const Home: React.FC = () => {
 
         console.log('Resposta parseada do webhook:', webhookResponse);
 
-        // Função para extrair a mensagem da resposta
+        // Função simplificada para extrair a mensagem da resposta
         const extractMessage = (response: any): string => {
-          console.log('Extraindo mensagem da resposta:', response);
+          console.log('Extraindo mensagem da resposta completa:', JSON.stringify(response, null, 2));
           
-          // Se for string diretamente
-          if (typeof response === 'string') {
-            console.log('Resposta é string:', response);
-            return response;
+          // Se for string diretamente, retornar
+          if (typeof response === 'string' && response.trim()) {
+            console.log('Resposta é string válida:', response);
+            return response.trim();
           }
           
-          // Se for array
-          if (Array.isArray(response)) {
-            console.log('Resposta é array:', response);
-            if (response.length > 0) {
-              const firstItem = response[0];
-              if (typeof firstItem === 'string') {
-                return firstItem;
-              }
-              if (typeof firstItem === 'object' && firstItem !== null) {
-                return extractMessage(firstItem);
-              }
-            }
-          }
-          
-          // Se for objeto
+          // Se for objeto, tentar encontrar a mensagem
           if (response && typeof response === 'object') {
-            console.log('Resposta é objeto, verificando propriedades...');
+            // Converter para string para análise visual
+            const responseStr = JSON.stringify(response);
+            console.log('Resposta como string para análise:', responseStr);
             
-            // Lista de possíveis propriedades que podem conter a mensagem
+            // Lista expandida de possíveis chaves que podem conter a mensagem
             const possibleKeys = [
               'output', 'agent_response', 'message', 'response', 'text', 'content', 
-              'answer', 'reply', 'result', 'data', 'body'
+              'answer', 'reply', 'result', 'data', 'body', 'success', 'payload',
+              'response_text', 'bot_response', 'agent_message', 'ai_response'
             ];
             
+            // Tentar encontrar a mensagem nas chaves conhecidas
             for (const key of possibleKeys) {
-              if (response[key]) {
-                console.log(`Encontrada propriedade ${key}:`, response[key]);
-                if (typeof response[key] === 'string') {
-                  return response[key];
+              if (response[key] !== undefined && response[key] !== null) {
+                console.log(`Verificando chave '${key}':`, response[key]);
+                
+                if (typeof response[key] === 'string' && response[key].trim()) {
+                  console.log(`Mensagem encontrada na chave '${key}':`, response[key]);
+                  return response[key].trim();
                 }
-                // Se a propriedade for um objeto ou array, tentar extrair recursivamente
+                
+                // Se for objeto ou array, tentar extrair recursivamente
                 if (typeof response[key] === 'object') {
-                  const nested = extractMessage(response[key]);
-                  if (nested !== "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.") {
-                    return nested;
+                  const nestedResult = extractMessage(response[key]);
+                  if (nestedResult && nestedResult !== "Desculpe, não consegui processar sua mensagem. Tente novamente.") {
+                    return nestedResult;
                   }
                 }
               }
             }
             
-            // Se não encontrou nenhuma propriedade conhecida, tentar pegar a primeira string encontrada
-            for (const key in response) {
-              if (typeof response[key] === 'string' && response[key].trim().length > 0) {
-                console.log(`Usando propriedade ${key}:`, response[key]);
-                return response[key];
+            // Se for array, tentar o primeiro item
+            if (Array.isArray(response) && response.length > 0) {
+              console.log('Resposta é array, tentando primeiro item:', response[0]);
+              return extractMessage(response[0]);
+            }
+            
+            // Buscar qualquer string não vazia no objeto
+            for (const [key, value] of Object.entries(response)) {
+              if (typeof value === 'string' && value.trim().length > 5) { // Mínimo 5 caracteres
+                console.log(`Usando string encontrada na chave '${key}':`, value);
+                return value.trim();
               }
+            }
+            
+            // Se chegou até aqui, tentar converter o objeto inteiro para string se for pequeno
+            if (responseStr.length < 200) {
+              console.log('Usando objeto inteiro como string:', responseStr);
+              return responseStr;
             }
           }
           
-          console.log('Nenhuma mensagem encontrada, usando padrão');
-          return "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
+          console.log('Nenhuma mensagem válida encontrada, usando mensagem padrão');
+          return "Desculpe, não consegui processar sua mensagem. Tente novamente.";
         };
 
         const agentMessage = extractMessage(webhookResponse);
-        console.log('Mensagem final do agente:', agentMessage);
+        console.log('Mensagem final extraída do agente:', agentMessage);
 
-        // Adicionar resposta do bot
-        console.log('Adicionando mensagem do bot ao estado:', agentMessage);
-        setTimeout(() => {
-          const newBotMessage = {
-            id: Date.now() + 1,
-            text: agentMessage,
-            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            isUser: false
-          };
-          console.log('Nova mensagem do bot criada:', newBotMessage);
-          setMessages(prev => {
-            const newMessages = [...prev, newBotMessage];
-            console.log('Estado das mensagens atualizado:', newMessages);
-            return newMessages;
-          });
-        }, 1000);
+        // Verificar se a mensagem é válida antes de adicionar
+        if (agentMessage && agentMessage.trim()) {
+          console.log('Adicionando mensagem válida do bot ao estado:', agentMessage);
+          
+          // Adicionar resposta do bot com delay menor para melhor UX
+          setTimeout(() => {
+            setMessages(prev => {
+              const newBotMessage = {
+                id: Date.now() + 1,
+                text: agentMessage,
+                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                isUser: false
+              };
+              console.log('Nova mensagem do bot criada e adicionada:', newBotMessage);
+              const updatedMessages = [...prev, newBotMessage];
+              console.log('Estado completo das mensagens após adição:', updatedMessages);
+              return updatedMessages;
+            });
+          }, 500);
+        } else {
+          console.error('Mensagem do agente está vazia ou inválida:', agentMessage);
+          // Adicionar mensagem de erro mais específica
+          setTimeout(() => {
+            setMessages(prev => [...prev, {
+              id: Date.now() + 1,
+              text: "Recebi sua mensagem, mas houve um problema na resposta. Nossa equipe verificará em breve.",
+              time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+              isUser: false
+            }]);
+          }, 500);
+        }
       } else {
         const errorText = await response.text();
         console.error('Erro na resposta do webhook:', response.status, response.statusText, errorText);
@@ -317,73 +337,41 @@ const Home: React.FC = () => {
 
                 console.log('Resposta parseada do webhook para áudio:', webhookResponse);
 
-                // Usar a mesma função de extração para áudio
-                const extractMessage = (response: any): string => {
-                  console.log('Extraindo mensagem da resposta de áudio:', response);
-                  
-                  if (typeof response === 'string') {
-                    return response;
-                  }
-                  
-                  if (Array.isArray(response)) {
-                    if (response.length > 0) {
-                      const firstItem = response[0];
-                      if (typeof firstItem === 'string') {
-                        return firstItem;
-                      }
-                      if (typeof firstItem === 'object' && firstItem !== null) {
-                        return extractMessage(firstItem);
-                      }
-                    }
-                  }
-                  
-                  if (response && typeof response === 'object') {
-                    const possibleKeys = [
-                      'output', 'agent_response', 'message', 'response', 'text', 'content', 
-                      'answer', 'reply', 'result', 'data', 'body'
-                    ];
-                    
-                    for (const key of possibleKeys) {
-                      if (response[key]) {
-                        if (typeof response[key] === 'string') {
-                          return response[key];
-                        }
-                        if (typeof response[key] === 'object') {
-                          const nested = extractMessage(response[key]);
-                          if (nested !== "Recebi seu áudio! Nossa equipe analisará e retornará em breve.") {
-                            return nested;
-                          }
-                        }
-                      }
-                    }
-                    
-                    for (const key in response) {
-                      if (typeof response[key] === 'string' && response[key].trim().length > 0) {
-                        return response[key];
-                      }
-                    }
-                  }
-                  
-                  return "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
-                };
-
+                // Usar a mesma função melhorada de extração para áudio
                 const agentMessage = extractMessage(webhookResponse);
 
-                console.log('Adicionando resposta de áudio do bot:', agentMessage);
-                setTimeout(() => {
-                  const newBotMessage = {
-                    id: Date.now() + 1,
-                    text: agentMessage,
-                    time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    isUser: false
-                  };
-                  console.log('Nova mensagem de áudio do bot criada:', newBotMessage);
-                  setMessages(prev => {
-                    const newMessages = [...prev, newBotMessage];
-                    console.log('Estado das mensagens de áudio atualizado:', newMessages);
-                    return newMessages;
-                  });
-                }, 1000);
+                console.log('Mensagem de áudio extraída do agente:', agentMessage);
+                
+                // Verificar se a mensagem é válida antes de adicionar
+                if (agentMessage && agentMessage.trim()) {
+                  console.log('Adicionando resposta válida de áudio do bot:', agentMessage);
+                  
+                  setTimeout(() => {
+                    setMessages(prev => {
+                      const newBotMessage = {
+                        id: Date.now() + 1,
+                        text: agentMessage,
+                        time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                        isUser: false
+                      };
+                      console.log('Nova mensagem de áudio do bot criada e adicionada:', newBotMessage);
+                      const updatedMessages = [...prev, newBotMessage];
+                      console.log('Estado completo das mensagens de áudio após adição:', updatedMessages);
+                      return updatedMessages;
+                    });
+                  }, 500);
+                } else {
+                  console.error('Mensagem de áudio do agente está vazia ou inválida:', agentMessage);
+                  // Adicionar mensagem de erro para áudio
+                  setTimeout(() => {
+                    setMessages(prev => [...prev, {
+                      id: Date.now() + 1,
+                      text: "Recebi seu áudio, mas houve um problema na resposta. Nossa equipe verificará em breve.",
+                      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                      isUser: false
+                    }]);
+                  }, 500);
+                }
               } else {
                 const errorText = await response.text();
                 console.error('Erro na resposta do webhook para áudio:', response.status, response.statusText, errorText);
