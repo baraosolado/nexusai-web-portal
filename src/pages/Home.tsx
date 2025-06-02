@@ -182,16 +182,22 @@ const Home: React.FC = () => {
     try {
       const agentId = agentIdentifiers[selectedAgent.type] || selectedAgent.type;
 
+      // Gerar um message_id único para esta mensagem específica
+      const messageId = generateSessionId();
+
       const webhookData = {
         agent_name: selectedAgent.name,
         agent_type: selectedAgent.type,
         agent_id: agentId,
         user_id: userId,
+        message_id: messageId,
         action: 'chat_message',
         message: messageToSend,
         timestamp: new Date().toISOString(),
         source: 'portfolio_website'
       };
+
+      console.log('Enviando mensagem com userId:', userId, 'e messageId:', messageId);
 
       console.log('Enviando dados para webhook:', webhookData);
 
@@ -336,18 +342,22 @@ const Home: React.FC = () => {
                 console.log('UserId gerado durante envio de áudio:', currentUserId);
               }
 
+              // Gerar um message_id único para esta mensagem de áudio específica
+              const messageId = generateSessionId();
+
               const webhookData = {
                 agent_name: selectedAgent?.name,
                 agent_type: selectedAgent?.type,
                 agent_id: agentId,
                 user_id: currentUserId,
+                message_id: messageId,
                 action: 'chat_audio',
                 audio_data: base64Data,
                 timestamp: new Date().toISOString(),
                 source: 'portfolio_website'
               };
 
-              console.log('Enviando áudio com userId:', currentUserId);
+              console.log('Enviando áudio com userId:', currentUserId, 'e messageId:', messageId);
 
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
