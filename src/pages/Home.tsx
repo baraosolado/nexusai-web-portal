@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -75,7 +74,7 @@ const Home: React.FC = () => {
     if (Array.isArray(response) && response.length > 0) {
       console.log('Resposta é array, analisando primeiro item:', response[0]);
       const firstItem = response[0];
-      
+
       // Verificar se o primeiro item tem a propriedade 'output'
       if (firstItem && typeof firstItem === 'object' && firstItem.output) {
         console.log('Encontrado output no array:', firstItem.output);
@@ -83,7 +82,7 @@ const Home: React.FC = () => {
           return firstItem.output.trim();
         }
       }
-      
+
       // Se não encontrou output, tentar extrair recursivamente do primeiro item
       return extractMessage(firstItem);
     }
@@ -143,11 +142,11 @@ const Home: React.FC = () => {
 
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
-    
+
     // Gerar novo userId para esta sessão de chat
     const newUserId = generateSessionId();
     setUserId(newUserId);
-    
+
     setIsChatOpen(true);
     // Mensagem inicial do bot
     setMessages([{
@@ -258,7 +257,7 @@ const Home: React.FC = () => {
       } else {
         const errorText = await response.text();
         console.error('Erro na resposta do webhook:', response.status, response.statusText, errorText);
-        
+
         // Mesmo com erro HTTP, adicionar uma mensagem de resposta
         setTimeout(() => {
           setMessages(prev => [...prev, {
@@ -272,7 +271,7 @@ const Home: React.FC = () => {
       }
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
-      
+
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
@@ -416,7 +415,7 @@ const Home: React.FC = () => {
                   isUser: false
                 }]);
                 setIsWaitingForResponse(false);
-              }, 500);
+              }, 300);
 
               toast({
                 title: 'Erro',
@@ -436,7 +435,7 @@ const Home: React.FC = () => {
               isUser: false
             }]);
             setIsWaitingForResponse(false);
-          }, 500);
+          }, 300);
         }
 
         stream.getTracks().forEach(track => track.stop());
@@ -785,17 +784,6 @@ const Home: React.FC = () => {
                   <p className="text-xs text-gray-400">Online agora</p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setIsChatOpen(false);
-                  setUserId(''); // Resetar userId ao fechar
-                }}
-                className="text-gray-400 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
           </DialogHeader>
 
@@ -829,13 +817,6 @@ const Home: React.FC = () => {
                 </div>
               </div>
             ))}
-            {isWaitingForResponse && (
-              <div className="flex justify-center">
-                <p className="text-sm text-gray-400">
-                  Aguardando resposta...
-                </p>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
