@@ -143,9 +143,14 @@ const Home: React.FC = () => {
   const handleTestAgent = (agentName: string, agentType: string) => {
     setSelectedAgent({ name: agentName, type: agentType });
 
-    // Gerar novo userId para esta sessão de chat
-    const newUserId = generateSessionId();
-    setUserId(newUserId);
+    // Gerar novo userId apenas se não existir um para esta sessão
+    if (!userId) {
+      const newUserId = generateSessionId();
+      setUserId(newUserId);
+      console.log('Novo userId gerado para sessão de chat:', newUserId);
+    } else {
+      console.log('Usando userId existente da sessão:', userId);
+    }
 
     setIsChatOpen(true);
     // Mensagem inicial do bot
@@ -323,16 +328,26 @@ const Home: React.FC = () => {
 
               console.log('Enviando áudio em base64 para webhook');
 
+              // Garantir que existe um userId para esta sessão
+              let currentUserId = userId;
+              if (!currentUserId) {
+                currentUserId = generateSessionId();
+                setUserId(currentUserId);
+                console.log('UserId gerado durante envio de áudio:', currentUserId);
+              }
+
               const webhookData = {
                 agent_name: selectedAgent?.name,
                 agent_type: selectedAgent?.type,
                 agent_id: agentId,
-                user_id: userId,
+                user_id: currentUserId,
                 action: 'chat_audio',
                 audio_data: base64Data,
                 timestamp: new Date().toISOString(),
                 source: 'portfolio_website'
               };
+
+              console.log('Enviando áudio com userId:', currentUserId);
 
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
