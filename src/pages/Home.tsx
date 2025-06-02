@@ -136,39 +136,87 @@ const Home: React.FC = () => {
 
         console.log('Resposta parseada do webhook:', webhookResponse);
 
-        // Verificar se há uma resposta do agente no webhook
-        let agentMessage = "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
-
-        // Verificar diferentes formatos de resposta
-        if (webhookResponse && typeof webhookResponse === 'object') {
-          if (webhookResponse.agent_response) {
-            agentMessage = webhookResponse.agent_response;
-          } else if (webhookResponse.message) {
-            agentMessage = webhookResponse.message;
-          } else if (webhookResponse.response) {
-            agentMessage = webhookResponse.response;
-          } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
-            // Caso seja um array como retornado: [{"output": "mensagem"}]
-            const firstItem = webhookResponse[0];
-            if (firstItem && typeof firstItem === 'object' && firstItem.output) {
-              agentMessage = firstItem.output;
-            }
-          } else if (webhookResponse.output) {
-            // Caso seja um objeto direto com output
-            agentMessage = webhookResponse.output;
+        // Função para extrair a mensagem da resposta
+        const extractMessage = (response: any): string => {
+          console.log('Extraindo mensagem da resposta:', response);
+          
+          // Se for string diretamente
+          if (typeof response === 'string') {
+            console.log('Resposta é string:', response);
+            return response;
           }
-        }
+          
+          // Se for array
+          if (Array.isArray(response)) {
+            console.log('Resposta é array:', response);
+            if (response.length > 0) {
+              const firstItem = response[0];
+              if (typeof firstItem === 'string') {
+                return firstItem;
+              }
+              if (typeof firstItem === 'object' && firstItem !== null) {
+                return extractMessage(firstItem);
+              }
+            }
+          }
+          
+          // Se for objeto
+          if (response && typeof response === 'object') {
+            console.log('Resposta é objeto, verificando propriedades...');
+            
+            // Lista de possíveis propriedades que podem conter a mensagem
+            const possibleKeys = [
+              'output', 'agent_response', 'message', 'response', 'text', 'content', 
+              'answer', 'reply', 'result', 'data', 'body'
+            ];
+            
+            for (const key of possibleKeys) {
+              if (response[key]) {
+                console.log(`Encontrada propriedade ${key}:`, response[key]);
+                if (typeof response[key] === 'string') {
+                  return response[key];
+                }
+                // Se a propriedade for um objeto ou array, tentar extrair recursivamente
+                if (typeof response[key] === 'object') {
+                  const nested = extractMessage(response[key]);
+                  if (nested !== "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.") {
+                    return nested;
+                  }
+                }
+              }
+            }
+            
+            // Se não encontrou nenhuma propriedade conhecida, tentar pegar a primeira string encontrada
+            for (const key in response) {
+              if (typeof response[key] === 'string' && response[key].trim().length > 0) {
+                console.log(`Usando propriedade ${key}:`, response[key]);
+                return response[key];
+              }
+            }
+          }
+          
+          console.log('Nenhuma mensagem encontrada, usando padrão');
+          return "Obrigado pela sua mensagem! Em breve um de nossos especialistas entrará em contato com você.";
+        };
 
+        const agentMessage = extractMessage(webhookResponse);
         console.log('Mensagem final do agente:', agentMessage);
 
         // Adicionar resposta do bot
+        console.log('Adicionando mensagem do bot ao estado:', agentMessage);
         setTimeout(() => {
-          setMessages(prev => [...prev, {
+          const newBotMessage = {
             id: Date.now() + 1,
             text: agentMessage,
             time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             isUser: false
-          }]);
+          };
+          console.log('Nova mensagem do bot criada:', newBotMessage);
+          setMessages(prev => {
+            const newMessages = [...prev, newBotMessage];
+            console.log('Estado das mensagens atualizado:', newMessages);
+            return newMessages;
+          });
         }, 1000);
       } else {
         const errorText = await response.text();
@@ -269,35 +317,72 @@ const Home: React.FC = () => {
 
                 console.log('Resposta parseada do webhook para áudio:', webhookResponse);
 
-                let agentMessage = "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
-
-                // Verificar diferentes formatos de resposta
-                if (webhookResponse && typeof webhookResponse === 'object') {
-                  if (webhookResponse.agent_response) {
-                    agentMessage = webhookResponse.agent_response;
-                  } else if (webhookResponse.message) {
-                    agentMessage = webhookResponse.message;
-                  } else if (webhookResponse.response) {
-                    agentMessage = webhookResponse.response;
-                  } else if (Array.isArray(webhookResponse) && webhookResponse.length > 0) {
-                    // Caso seja um array como retornado: [{"output": "mensagem"}]
-                    const firstItem = webhookResponse[0];
-                    if (firstItem && typeof firstItem === 'object' && firstItem.output) {
-                      agentMessage = firstItem.output;
-                    }
-                  } else if (webhookResponse.output) {
-                    // Caso seja um objeto direto com output
-                    agentMessage = webhookResponse.output;
+                // Usar a mesma função de extração para áudio
+                const extractMessage = (response: any): string => {
+                  console.log('Extraindo mensagem da resposta de áudio:', response);
+                  
+                  if (typeof response === 'string') {
+                    return response;
                   }
-                }
+                  
+                  if (Array.isArray(response)) {
+                    if (response.length > 0) {
+                      const firstItem = response[0];
+                      if (typeof firstItem === 'string') {
+                        return firstItem;
+                      }
+                      if (typeof firstItem === 'object' && firstItem !== null) {
+                        return extractMessage(firstItem);
+                      }
+                    }
+                  }
+                  
+                  if (response && typeof response === 'object') {
+                    const possibleKeys = [
+                      'output', 'agent_response', 'message', 'response', 'text', 'content', 
+                      'answer', 'reply', 'result', 'data', 'body'
+                    ];
+                    
+                    for (const key of possibleKeys) {
+                      if (response[key]) {
+                        if (typeof response[key] === 'string') {
+                          return response[key];
+                        }
+                        if (typeof response[key] === 'object') {
+                          const nested = extractMessage(response[key]);
+                          if (nested !== "Recebi seu áudio! Nossa equipe analisará e retornará em breve.") {
+                            return nested;
+                          }
+                        }
+                      }
+                    }
+                    
+                    for (const key in response) {
+                      if (typeof response[key] === 'string' && response[key].trim().length > 0) {
+                        return response[key];
+                      }
+                    }
+                  }
+                  
+                  return "Recebi seu áudio! Nossa equipe analisará e retornará em breve.";
+                };
 
+                const agentMessage = extractMessage(webhookResponse);
+
+                console.log('Adicionando resposta de áudio do bot:', agentMessage);
                 setTimeout(() => {
-                  setMessages(prev => [...prev, {
+                  const newBotMessage = {
                     id: Date.now() + 1,
                     text: agentMessage,
                     time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                     isUser: false
-                  }]);
+                  };
+                  console.log('Nova mensagem de áudio do bot criada:', newBotMessage);
+                  setMessages(prev => {
+                    const newMessages = [...prev, newBotMessage];
+                    console.log('Estado das mensagens de áudio atualizado:', newMessages);
+                    return newMessages;
+                  });
                 }, 1000);
               } else {
                 const errorText = await response.text();
