@@ -77,11 +77,34 @@ const Home: React.FC = () => {
       return response.trim();
     }
 
+    // Se for array, verificar se o primeiro item tem a propriedade 'output'
+    if (Array.isArray(response) && response.length > 0) {
+      console.log('Resposta é array, analisando primeiro item:', response[0]);
+      const firstItem = response[0];
+      
+      // Verificar se o primeiro item tem a propriedade 'output'
+      if (firstItem && typeof firstItem === 'object' && firstItem.output) {
+        console.log('Encontrado output no array:', firstItem.output);
+        if (typeof firstItem.output === 'string' && firstItem.output.trim()) {
+          return firstItem.output.trim();
+        }
+      }
+      
+      // Se não encontrou output, tentar extrair recursivamente do primeiro item
+      return extractMessage(firstItem);
+    }
+
     // Se for objeto, tentar encontrar a mensagem
     if (response && typeof response === 'object') {
+      // Verificar primeiro se tem a propriedade 'output' (formato específico do seu backend)
+      if (response.output && typeof response.output === 'string' && response.output.trim()) {
+        console.log('Mensagem encontrada na propriedade output:', response.output);
+        return response.output.trim();
+      }
+
       // Lista expandida de possíveis chaves que podem conter a mensagem
       const possibleKeys = [
-        'message', 'response', 'text', 'content', 'output', 'agent_response',
+        'message', 'response', 'text', 'content', 'agent_response',
         'answer', 'reply', 'result', 'data', 'body', 'payload',
         'response_text', 'bot_response', 'agent_message', 'ai_response',
         'success', 'msg', 'responseText', 'value'
@@ -107,15 +130,9 @@ const Home: React.FC = () => {
         }
       }
 
-      // Se for array, tentar o primeiro item
-      if (Array.isArray(response) && response.length > 0) {
-        console.log('Resposta é array, tentando primeiro item:', response[0]);
-        return extractMessage(response[0]);
-      }
-
       // Buscar qualquer string não vazia no objeto (com menos restrições)
       for (const [key, value] of Object.entries(response)) {
-        if (typeof value === 'string' && value.trim().length > 2) { // Reduzindo para 2 caracteres
+        if (typeof value === 'string' && value.trim().length > 2) {
           console.log(`Usando string encontrada na chave '${key}':`, value);
           return value.trim();
         }
