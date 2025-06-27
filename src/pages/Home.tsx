@@ -319,22 +319,28 @@ const Home: React.FC = () => {
         setTimeout(() => {
           agentMessages.forEach((message, index) => {
             setTimeout(() => {
+              const messageId = Date.now() + index * 1000 + Math.random() * 100; // ID único para cada mensagem
+              const newBotMessage = {
+                id: messageId,
+                text: message || "Obrigado pela mensagem! Nossa equipe responderá em breve.",
+                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                isUser: false
+              };
+              
+              console.log(`Nova mensagem do bot ${index + 1} criada e adicionada:`, newBotMessage);
+              
               setMessages(prev => {
-                const newBotMessage = {
-                  id: Date.now() + index + 1,
-                  text: message || "Obrigado pela mensagem! Nossa equipe responderá em breve.",
-                  time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                  isUser: false
-                };
-                console.log(`Nova mensagem do bot ${index + 1} criada e adicionada:`, newBotMessage);
-                return [...prev, newBotMessage];
+                const updatedMessages = [...prev, newBotMessage];
+                console.log(`Estado das mensagens após adicionar mensagem ${index + 1}:`, updatedMessages);
+                return updatedMessages;
               });
               
               // Marcar como não esperando resposta apenas na última mensagem
               if (index === agentMessages.length - 1) {
                 setIsWaitingForResponse(false);
+                console.log('Todas as mensagens do agente foram adicionadas ao chat');
               }
-            }, index * 800); // Delay de 800ms entre cada mensagem
+            }, index * 1000); // Delay de 1 segundo entre cada mensagem para melhor visibilidade
           });
         }, 500);
 
@@ -475,14 +481,17 @@ const Home: React.FC = () => {
                   setTimeout(() => {
                     agentMessages.forEach((message, index) => {
                       setTimeout(() => {
+                        const messageId = Date.now() + index * 1000 + Math.random() * 100; // ID único para cada mensagem
+                        const newBotMessage = {
+                          id: messageId,
+                          text: message,
+                          time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                          isUser: false
+                        };
+                        
+                        console.log(`Nova mensagem de áudio do bot ${index + 1} criada e adicionada:`, newBotMessage);
+                        
                         setMessages(prev => {
-                          const newBotMessage = {
-                            id: Date.now() + index + 1,
-                            text: message,
-                            time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                            isUser: false
-                          };
-                          console.log(`Nova mensagem de áudio do bot ${index + 1} criada e adicionada:`, newBotMessage);
                           const updatedMessages = [...prev, newBotMessage];
                           console.log('Estado completo das mensagens de áudio após adição:', updatedMessages);
                           return updatedMessages;
@@ -491,8 +500,9 @@ const Home: React.FC = () => {
                         // Marcar como não esperando resposta apenas na última mensagem
                         if (index === agentMessages.length - 1) {
                           setIsWaitingForResponse(false);
+                          console.log('Todas as mensagens de áudio do agente foram adicionadas ao chat');
                         }
-                      }, index * 800); // Delay de 800ms entre cada mensagem
+                      }, index * 1000); // Delay de 1 segundo entre cada mensagem
                     });
                   }, 500);
                 } else {
