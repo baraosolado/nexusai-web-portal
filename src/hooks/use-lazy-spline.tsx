@@ -1,23 +1,9 @@
-import { useState, useEffect, useRef, useCallback, ComponentType } from 'react'
+import { useState, useCallback } from 'react'
 
-const useLazySpline = () => {
-  const [SplineComponent, setSplineComponent] = useState<ComponentType<any> | null>(null);
+export const useLazySpline = () => {
+  const [SplineComponent, setSplineComponent] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isPreloaded, setIsPreloaded] = useState(false);
-
-  // Preload apenas quando o usuário mostrar intenção de interagir
-  const preloadSpline = useCallback(async () => {
-    if (isPreloaded || SplineComponent) return;
-
-    setIsPreloaded(true);
-    try {
-      // Preload silencioso em background
-      await import('@splinetool/react-spline');
-    } catch (err) {
-      console.warn('Preload do Spline falhou:', err);
-    }
-  }, [isPreloaded, SplineComponent]);
 
   const loadSpline = useCallback(async () => {
     if (SplineComponent || isLoading) return;
@@ -26,8 +12,9 @@ const useLazySpline = () => {
     setError(null);
 
     try {
-      const { default: Spline } = await import('@splinetool/react-spline');
-      setSplineComponent(() => Spline);
+      // Carregamento dinâmico completo - sem pre-bundling
+      const splineModule = await import('@splinetool/react-spline');
+      setSplineComponent(() => splineModule.default);
     } catch (err) {
       console.error('Erro ao carregar Spline:', err);
       setError('Falha ao carregar o componente 3D');
@@ -36,5 +23,5 @@ const useLazySpline = () => {
     }
   }, [SplineComponent, isLoading]);
 
-  return { SplineComponent, isLoading, error, loadSpline, preloadSpline };
+  return { SplineComponent, isLoading, error, loadSpline };
 };

@@ -21,12 +21,14 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
+      external: ['@splinetool/runtime'],
       output: {
         manualChunks: (id) => {
           // Separa todas as dependências do Spline em chunks separados
           if (id.includes('@splinetool/react-spline')) {
             return 'spline-react';
           }
+          // Runtime será carregado dinamicamente, não no bundle
           if (id.includes('@splinetool/runtime')) {
             return 'spline-runtime';
           }

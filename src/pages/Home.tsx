@@ -878,9 +878,10 @@ const Home: React.FC = () => {
                     className="w-full h-full object-contain" 
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-nexus-dark to-nexus-darker flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-pulse text-nexus-purple mb-4">⚡</div>
+                  <div className="w-full h-full bg-gradient-to-br from-nexus-dark to-nexus-darker flex items-center justify-center rounded-lg">
+                    <div className="text-center p-8">
+                      <div className="animate-pulse text-6xl text-nexus-purple mb-4">🤖</div>
+                      <div className="text-nexus-purple text-sm">Preparando experiência 3D...</div>
                       <p className="text-gray-400">Carregando experiência 3D...</p>
                     </div>
                   </div>
