@@ -76,7 +76,7 @@ const Home: React.FC = () => {
 
     // Se for array, processar todos os itens
     if (Array.isArray(response) && response.length > 0) {
-      console.log('Resposta é array, processando todos os itens:', response);
+      console.log('Resposta é array com', response.length, 'itens:', response);
 
       // Primeiro, tentar ordenar por sequence_number se existir
       const sortedResponse = [...response].sort((a, b) => {
@@ -89,45 +89,51 @@ const Home: React.FC = () => {
 
       console.log('Array ordenado por sequence_number:', sortedResponse);
 
-      for (let i = 0; i < sortedResponse.length; i++) {
-        const item = sortedResponse[i];
-        console.log(`Processando item ${i}:`, item);
+      // Processar cada item do array
+      sortedResponse.forEach((item, index) => {
+        console.log(`Processando item ${index + 1}/${sortedResponse.length}:`, item);
 
         // Verificar se tem propriedade 'message'
         if (item && typeof item === 'object' && item.message) {
-          console.log(`✅ SUCESSO: Encontrado message no item ${i}:`, item.message);
+          console.log(`✅ SUCESSO: Encontrado message no item ${index}:`, item.message);
           if (typeof item.message === 'string' && item.message.trim()) {
             messages.push(item.message.trim());
-            continue;
+            return; // Pula para o próximo item
           }
         }
 
         // Verificar se tem propriedade 'output'
         if (item && typeof item === 'object' && item.output) {
-          console.log(`✅ SUCESSO: Encontrado output no item ${i}:`, item.output);
+          console.log(`✅ SUCESSO: Encontrado output no item ${index}:`, item.output);
           if (typeof item.output === 'string' && item.output.trim()) {
             messages.push(item.output.trim());
-            continue;
+            return; // Pula para o próximo item
           }
         }
 
         // Se for string diretamente
         if (typeof item === 'string' && item.trim()) {
-          console.log(`✅ SUCESSO: Item ${i} é string:`, item);
+          console.log(`✅ SUCESSO: Item ${index} é string:`, item);
           messages.push(item.trim());
-          continue;
+          return; // Pula para o próximo item
         }
 
-        // Tentar extrair recursivamente
+        // Tentar extrair recursivamente como último recurso
         const extracted = extractSingleMessage(item);
         if (extracted && extracted !== "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve.") {
+          console.log(`✅ SUCESSO: Extraído recursivamente do item ${index}:`, extracted);
           messages.push(extracted);
+        } else {
+          console.log(`⚠️ AVISO: Item ${index} não pôde ser processado:`, item);
         }
-      }
+      });
 
+      console.log(`✅ TOTAL EXTRAÍDO: ${messages.length} mensagens do array:`, messages);
+      
       if (messages.length > 0) {
-        console.log(`✅ SUCESSO: Extraídas ${messages.length} mensagens do array:`, messages);
         return messages;
+      } else {
+        console.log('❌ Nenhuma mensagem válida extraída do array');
       }
     }
 
