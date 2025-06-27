@@ -1,0 +1,59 @@
+Home.tsx:247 Novo userId gerado para sessão de chat: 426149149
+@radix-ui_react-dialog.js?v=8f9f0db1:336 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ @radix-ui_react-dialog.js?v=8f9f0db1:336Understand this warning
+Home.tsx:298 Enviando mensagem com userId: 426149149 e messageId: 820601183
+Home.tsx:300 Enviando dados para webhook: Object
+Home.tsx:319 Status da resposta: 200
+Home.tsx:323 === RESPOSTA COMPLETA DO WEBHOOK ===
+Home.tsx:324 Texto bruto: [{"0":{"message":"Olá! Bem-vindo(a) à Imobiliária Nexus.","sequence_number":1},"1":{"message":"Meu nome é Roberta, como posso ajudar você hoje?","sequence_number":2}}]
+Home.tsx:325 Comprimento: 167
+Home.tsx:326 =====================================
+Home.tsx:336 === RESPOSTA PARSEADA ===
+Home.tsx:337 [
+  {
+    "0": {
+      "message": "Olá! Bem-vindo(a) à Imobiliária Nexus.",
+      "sequence_number": 1
+    },
+    "1": {
+      "message": "Meu nome é Roberta, como posso ajudar você hoje?",
+      "sequence_number": 2
+    }
+  }
+]
+Home.tsx:338 ========================
+Home.tsx:65 === INICIANDO EXTRAÇÃO DE MENSAGENS ===
+Home.tsx:66 Tipo da resposta: object
+Home.tsx:67 Resposta completa: [
+  {
+    "0": {
+      "message": "Olá! Bem-vindo(a) à Imobiliária Nexus.",
+      "sequence_number": 1
+    },
+    "1": {
+      "message": "Meu nome é Roberta, como posso ajudar você hoje?",
+      "sequence_number": 2
+    }
+  }
+]
+Home.tsx:79 Resposta é array com 1 itens: Array(1)
+Home.tsx:84 Processando item 1/1: Object
+Home.tsx:236 Usando resposta genérica - resposta recebida mas não processável
+Home.tsx:155 ⚠️ AVISO: Item 0 não pôde ser processado: Object
+Home.tsx:159 ✅ TOTAL EXTRAÍDO: 0 mensagens do array: Array(0)
+Home.tsx:164 ❌ Nenhuma mensagem válida extraída do array
+Home.tsx:236 Usando resposta genérica - resposta recebida mas não processável
+Home.tsx:341 === MENSAGENS EXTRAÍDAS ===
+Home.tsx:342 Resultado da extração: Array(1)
+Home.tsx:343 ========================
+Home.tsx:359 === MENSAGENS FINAIS ===
+Home.tsx:360 Mensagens que serão exibidas: Array(1)
+Home.tsx:361 Quantidade de mensagens: 1
+Home.tsx:362 ========================
+Home.tsx:366 === INICIANDO ADIÇÃO DE MENSAGENS AO CHAT ===
+Home.tsx:367 Total de mensagens para adicionar: 1
+Home.tsx:368 Mensagens a serem adicionadas: Array(1)
+Home.tsx:381 [1/1] Adicionando mensagem: Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!
+Home.tsx:385 Estado atual do chat (3 mensagens): Array(3)
+Home.tsx:392 ✅ Todas as mensagens do agente foram adicionadas ao chat
+Home.tsx:393 === FIM DA ADIÇÃO DE MENSAGENS ===
