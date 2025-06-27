@@ -80,8 +80,8 @@ const Home: React.FC = () => {
 
       // Primeiro, tentar ordenar por sequence_number se existir
       const sortedResponse = [...response].sort((a, b) => {
-        if (a && typeof a === 'object' && a.sequence_number && 
-            b && typeof b === 'object' && b.sequence_number) {
+        if (a && typeof a === 'object' && typeof a.sequence_number === 'number' && 
+            b && typeof b === 'object' && typeof b.sequence_number === 'number') {
           return a.sequence_number - b.sequence_number;
         }
         return 0;
@@ -90,43 +90,51 @@ const Home: React.FC = () => {
       console.log('Array ordenado por sequence_number:', sortedResponse);
 
       // Processar cada item do array
-      sortedResponse.forEach((item, index) => {
-        console.log(`Processando item ${index + 1}/${sortedResponse.length}:`, item);
+      for (let i = 0; i < sortedResponse.length; i++) {
+        const item = sortedResponse[i];
+        console.log(`Processando item ${i + 1}/${sortedResponse.length}:`, item);
+
+        let messageExtracted = false;
 
         // Verificar se tem propriedade 'message'
         if (item && typeof item === 'object' && item.message) {
-          console.log(`✅ SUCESSO: Encontrado message no item ${index}:`, item.message);
+          console.log(`✅ SUCESSO: Encontrado message no item ${i}:`, item.message);
           if (typeof item.message === 'string' && item.message.trim()) {
             messages.push(item.message.trim());
-            return; // Pula para o próximo item
+            messageExtracted = true;
           }
         }
 
-        // Verificar se tem propriedade 'output'
-        if (item && typeof item === 'object' && item.output) {
-          console.log(`✅ SUCESSO: Encontrado output no item ${index}:`, item.output);
+        // Se não extraiu ainda, verificar se tem propriedade 'output'
+        if (!messageExtracted && item && typeof item === 'object' && item.output) {
+          console.log(`✅ SUCESSO: Encontrado output no item ${i}:`, item.output);
           if (typeof item.output === 'string' && item.output.trim()) {
             messages.push(item.output.trim());
-            return; // Pula para o próximo item
+            messageExtracted = true;
           }
         }
 
-        // Se for string diretamente
-        if (typeof item === 'string' && item.trim()) {
-          console.log(`✅ SUCESSO: Item ${index} é string:`, item);
+        // Se não extraiu ainda e for string diretamente
+        if (!messageExtracted && typeof item === 'string' && item.trim()) {
+          console.log(`✅ SUCESSO: Item ${i} é string:`, item);
           messages.push(item.trim());
-          return; // Pula para o próximo item
+          messageExtracted = true;
         }
 
-        // Tentar extrair recursivamente como último recurso
-        const extracted = extractSingleMessage(item);
-        if (extracted && extracted !== "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve.") {
-          console.log(`✅ SUCESSO: Extraído recursivamente do item ${index}:`, extracted);
-          messages.push(extracted);
-        } else {
-          console.log(`⚠️ AVISO: Item ${index} não pôde ser processado:`, item);
+        // Como último recurso, tentar extrair recursivamente
+        if (!messageExtracted) {
+          const extracted = extractSingleMessage(item);
+          if (extracted && extracted !== "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve." && extracted !== "Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!") {
+            console.log(`✅ SUCESSO: Extraído recursivamente do item ${i}:`, extracted);
+            messages.push(extracted);
+            messageExtracted = true;
+          }
         }
-      });
+
+        if (!messageExtracted) {
+          console.log(`⚠️ AVISO: Item ${i} não pôde ser processado:`, item);
+        }
+      }
 
       console.log(`✅ TOTAL EXTRAÍDO: ${messages.length} mensagens do array:`, messages);
       
@@ -334,34 +342,43 @@ const Home: React.FC = () => {
         console.log('========================');
 
         // Adicionar todas as mensagens do bot, uma por vez com delay entre elas
-        setTimeout(() => {
-          console.log('Iniciando processamento de', agentMessages.length, 'mensagens');
-          agentMessages.forEach((message, index) => {
-            setTimeout(() => {
-              const messageId = Date.now() + index * 1000 + Math.random() * 100; // ID único para cada mensagem
-              const newBotMessage = {
-                id: messageId,
-                text: message || "Obrigado pela mensagem! Nossa equipe responderá em breve.",
-                time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                isUser: false
-              };
+        if (agentMessages && agentMessages.length > 0) {
+          console.log('=== INICIANDO ADIÇÃO DE MENSAGENS AO CHAT ===');
+          console.log('Total de mensagens para adicionar:', agentMessages.length);
+          console.log('Mensagens a serem adicionadas:', agentMessages);
+          
+          setTimeout(() => {
+            agentMessages.forEach((message, index) => {
+              setTimeout(() => {
+                const messageId = Date.now() + index * 1000 + Math.random() * 100;
+                const newBotMessage = {
+                  id: messageId,
+                  text: message || "Obrigado pela mensagem! Nossa equipe responderá em breve.",
+                  time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                  isUser: false
+                };
 
-              console.log(`Nova mensagem do bot ${index + 1} criada e adicionada:`, newBotMessage);
+                console.log(`[${index + 1}/${agentMessages.length}] Adicionando mensagem:`, newBotMessage.text);
 
-              setMessages(prev => {
-                const updatedMessages = [...prev, newBotMessage];
-                console.log(`Estado das mensagens após adicionar mensagem ${index + 1}:`, updatedMessages);
-                return updatedMessages;
-              });
+                setMessages(prev => {
+                  const updatedMessages = [...prev, newBotMessage];
+                  console.log(`Estado atual do chat (${updatedMessages.length} mensagens):`, updatedMessages.map(m => ({ id: m.id, text: m.text, isUser: m.isUser })));
+                  return updatedMessages;
+                });
 
-              // Marcar como não esperando resposta apenas na última mensagem
-              if (index === agentMessages.length - 1) {
-                setIsWaitingForResponse(false);
-                console.log('Todas as mensagens do agente foram adicionadas ao chat');
-              }
-            }, index * 2000); // Delay de 2 segundos entre cada mensagem para melhor visibilidade
-          });
-        }, 500);
+                // Marcar como não esperando resposta apenas na última mensagem
+                if (index === agentMessages.length - 1) {
+                  setIsWaitingForResponse(false);
+                  console.log('✅ Todas as mensagens do agente foram adicionadas ao chat');
+                  console.log('=== FIM DA ADIÇÃO DE MENSAGENS ===');
+                }
+              }, index * 2000); // Delay de 2 segundos entre cada mensagem
+            });
+          }, 500);
+        } else {
+          console.log('❌ Nenhuma mensagem válida para adicionar ao chat');
+          setIsWaitingForResponse(false);
+        }
 
       } else {
         const errorText = await response.text();
@@ -803,7 +820,7 @@ const Home: React.FC = () => {
               description: 'Transforme a experiência de compra e venda de imóveis. Este agente gerencia listagens, organiza visitas e qualifica leads para corretores, aumentando a eficiência do negócio.'
             }, {
               name: 'Agente Advocacia',
-              type: 'advacia',
+              type: 'advocacia',
               icon: <Shield className="h-8 w-8" />,
               description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
             }, {
