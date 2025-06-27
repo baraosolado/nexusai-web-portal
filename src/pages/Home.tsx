@@ -78,60 +78,80 @@ const Home: React.FC = () => {
     if (Array.isArray(response) && response.length > 0) {
       console.log('Resposta é array com', response.length, 'itens:', response);
 
-      // Primeiro, tentar ordenar por sequence_number se existir
-      const sortedResponse = [...response].sort((a, b) => {
-        if (a && typeof a === 'object' && typeof a.sequence_number === 'number' && 
-            b && typeof b === 'object' && typeof b.sequence_number === 'number') {
-          return a.sequence_number - b.sequence_number;
-        }
-        return 0;
-      });
-
-      console.log('Array ordenado por sequence_number:', sortedResponse);
-
       // Processar cada item do array
-      for (let i = 0; i < sortedResponse.length; i++) {
-        const item = sortedResponse[i];
-        console.log(`Processando item ${i + 1}/${sortedResponse.length}:`, item);
+      for (let i = 0; i < response.length; i++) {
+        const item = response[i];
+        console.log(`Processando item ${i + 1}/${response.length}:`, item);
 
-        let messageExtracted = false;
+        // Verificar se tem propriedade 'messages' (novo formato)
+        if (item && typeof item === 'object' && item.messages && Array.isArray(item.messages)) {
+          console.log(`✅ SUCESSO: Encontrado array messages no item ${i}:`, item.messages);
+          
+          // Processar o array de mensagens
+          for (const messageGroup of item.messages) {
+            if (messageGroup && typeof messageGroup === 'object') {
+              console.log('Processando grupo de mensagens:', messageGroup);
+              
+              // Extrair mensagens dos objetos numerados (0, 1, 2, etc.)
+              const numberedMessages: {message: string, sequence_number: number}[] = [];
+              
+              for (const key in messageGroup) {
+                const msgObj = messageGroup[key];
+                if (msgObj && typeof msgObj === 'object' && msgObj.message && typeof msgObj.sequence_number === 'number') {
+                  numberedMessages.push({
+                    message: msgObj.message,
+                    sequence_number: msgObj.sequence_number
+                  });
+                  console.log(`✅ Mensagem extraída do objeto ${key}:`, msgObj.message, 'sequence:', msgObj.sequence_number);
+                }
+              }
+              
+              // Ordenar por sequence_number
+              numberedMessages.sort((a, b) => a.sequence_number - b.sequence_number);
+              console.log('Mensagens ordenadas por sequence_number:', numberedMessages);
+              
+              // Adicionar mensagens ao array principal
+              numberedMessages.forEach(msgObj => {
+                if (msgObj.message && msgObj.message.trim()) {
+                  messages.push(msgObj.message.trim());
+                }
+              });
+            }
+          }
+          continue;
+        }
 
-        // Verificar se tem propriedade 'message'
+        // Verificar formato anterior (objetos com message e sequence_number diretamente)
         if (item && typeof item === 'object' && item.message) {
           console.log(`✅ SUCESSO: Encontrado message no item ${i}:`, item.message);
           if (typeof item.message === 'string' && item.message.trim()) {
             messages.push(item.message.trim());
-            messageExtracted = true;
+            continue;
           }
         }
 
         // Se não extraiu ainda, verificar se tem propriedade 'output'
-        if (!messageExtracted && item && typeof item === 'object' && item.output) {
+        if (item && typeof item === 'object' && item.output) {
           console.log(`✅ SUCESSO: Encontrado output no item ${i}:`, item.output);
           if (typeof item.output === 'string' && item.output.trim()) {
             messages.push(item.output.trim());
-            messageExtracted = true;
+            continue;
           }
         }
 
         // Se não extraiu ainda e for string diretamente
-        if (!messageExtracted && typeof item === 'string' && item.trim()) {
+        if (typeof item === 'string' && item.trim()) {
           console.log(`✅ SUCESSO: Item ${i} é string:`, item);
           messages.push(item.trim());
-          messageExtracted = true;
+          continue;
         }
 
         // Como último recurso, tentar extrair recursivamente
-        if (!messageExtracted) {
-          const extracted = extractSingleMessage(item);
-          if (extracted && extracted !== "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve." && extracted !== "Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!") {
-            console.log(`✅ SUCESSO: Extraído recursivamente do item ${i}:`, extracted);
-            messages.push(extracted);
-            messageExtracted = true;
-          }
-        }
-
-        if (!messageExtracted) {
+        const extracted = extractSingleMessage(item);
+        if (extracted && extracted !== "Obrigado pela sua mensagem! Nossa equipe analisará e responderá em breve." && extracted !== "Recebi sua mensagem e estou processando. Em breve nossa equipe entrará em contato!") {
+          console.log(`✅ SUCESSO: Extraído recursivamente do item ${i}:`, extracted);
+          messages.push(extracted);
+        } else {
           console.log(`⚠️ AVISO: Item ${i} não pôde ser processado:`, item);
         }
       }
