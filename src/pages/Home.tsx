@@ -975,12 +975,6 @@ const Home: React.FC = () => {
                 Gravando áudio...
               </div>
             )}
-             {isWaitingForResponse && (
-              <div className="mt-2 flex items-center justify-center text-yellow-400 text-sm">
-                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse mr-2"></div>
-                Aguardando resposta...
-              </div>
-            )}
           </div>
         </DialogContent>
       </Dialog>
