@@ -86,15 +86,15 @@ const Home: React.FC = () => {
         // Verificar se tem propriedade 'messages' (novo formato)
         if (item && typeof item === 'object' && item.messages && Array.isArray(item.messages)) {
           console.log(`✅ SUCESSO: Encontrado array messages no item ${i}:`, item.messages);
-          
+
           // Processar o array de mensagens
           for (const messageGroup of item.messages) {
             if (messageGroup && typeof messageGroup === 'object') {
               console.log('Processando grupo de mensagens:', messageGroup);
-              
+
               // Extrair mensagens dos objetos numerados (0, 1, 2, etc.)
               const numberedMessages: {message: string, sequence_number: number}[] = [];
-              
+
               for (const key in messageGroup) {
                 const msgObj = messageGroup[key];
                 if (msgObj && typeof msgObj === 'object' && msgObj.message && typeof msgObj.sequence_number === 'number') {
@@ -105,11 +105,11 @@ const Home: React.FC = () => {
                   console.log(`✅ Mensagem extraída do objeto ${key}:`, msgObj.message, 'sequence:', msgObj.sequence_number);
                 }
               }
-              
+
               // Ordenar por sequence_number
               numberedMessages.sort((a, b) => a.sequence_number - b.sequence_number);
               console.log('Mensagens ordenadas por sequence_number:', numberedMessages);
-              
+
               // Adicionar mensagens ao array principal
               numberedMessages.forEach(msgObj => {
                 if (msgObj.message && msgObj.message.trim()) {
@@ -157,7 +157,7 @@ const Home: React.FC = () => {
       }
 
       console.log(`✅ TOTAL EXTRAÍDO: ${messages.length} mensagens do array:`, messages);
-      
+
       if (messages.length > 0) {
         return messages;
       } else {
@@ -302,8 +302,8 @@ const Home: React.FC = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        console.log('Timeout: Requisição cancelada após 30 segundos');
-      }, 30000);
+        console.log('Timeout: Requisição cancelada após 60 segundos');
+      }, 60000);
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
@@ -366,7 +366,7 @@ const Home: React.FC = () => {
           console.log('=== INICIANDO ADIÇÃO DE MENSAGENS AO CHAT ===');
           console.log('Total de mensagens para adicionar:', agentMessages.length);
           console.log('Mensagens a serem adicionadas:', agentMessages);
-          
+
           setTimeout(() => {
             agentMessages.forEach((message, index) => {
               setTimeout(() => {
@@ -498,8 +498,8 @@ const Home: React.FC = () => {
               const controller = new AbortController();
               const timeoutId = setTimeout(() => {
                 controller.abort();
-                console.log('Timeout: Requisição cancelada após 30 segundos');
-              }, 30000);
+                console.log('Timeout: Requisição cancelada após 60 segundos');
+              }, 60000);
 
               const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
                 method: 'POST',
@@ -679,8 +679,8 @@ const Home: React.FC = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        console.log('Timeout: Requisição cancelada após 30 segundos');
-      }, 30000);
+        console.log('Timeout: Requisição cancelada após 60 segundos');
+      }, 60000);
 
       const response = await fetch('https://webhook.dev.solandox.com/webhook/portfolio_virtual', {
         method: 'POST',
