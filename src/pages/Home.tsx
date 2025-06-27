@@ -83,7 +83,7 @@ const Home: React.FC = () => {
         const item = response[i];
         console.log(`Processando item ${i + 1}/${response.length}:`, item);
 
-        // Verificar se tem propriedade 'messages' (novo formato)
+        // Verificar se tem propriedade 'messages' (formato anterior)
         if (item && typeof item === 'object' && item.messages && Array.isArray(item.messages)) {
           console.log(`✅ SUCESSO: Encontrado array messages no item ${i}:`, item.messages);
 
@@ -119,6 +119,43 @@ const Home: React.FC = () => {
             }
           }
           continue;
+        }
+
+        // Verificar se o item tem objetos numerados diretamente (novo formato atual)
+        if (item && typeof item === 'object') {
+          console.log(`Verificando objetos numerados no item ${i}:`, item);
+          
+          const numberedMessages: {message: string, sequence_number: number}[] = [];
+          let hasNumberedObjects = false;
+
+          // Verificar se tem chaves numéricas (0, 1, 2, etc.)
+          for (const key in item) {
+            if (/^\d+$/.test(key)) { // Chave é um número
+              const msgObj = item[key];
+              if (msgObj && typeof msgObj === 'object' && msgObj.message && typeof msgObj.sequence_number === 'number') {
+                numberedMessages.push({
+                  message: msgObj.message,
+                  sequence_number: msgObj.sequence_number
+                });
+                hasNumberedObjects = true;
+                console.log(`✅ Mensagem extraída do objeto numerado ${key}:`, msgObj.message, 'sequence:', msgObj.sequence_number);
+              }
+            }
+          }
+
+          if (hasNumberedObjects) {
+            // Ordenar por sequence_number
+            numberedMessages.sort((a, b) => a.sequence_number - b.sequence_number);
+            console.log('Mensagens dos objetos numerados ordenadas por sequence_number:', numberedMessages);
+
+            // Adicionar mensagens ao array principal
+            numberedMessages.forEach(msgObj => {
+              if (msgObj.message && msgObj.message.trim()) {
+                messages.push(msgObj.message.trim());
+              }
+            });
+            continue;
+          }
         }
 
         // Verificar formato anterior (objetos com message e sequence_number diretamente)
