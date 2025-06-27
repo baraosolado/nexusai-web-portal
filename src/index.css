@@ -7,34 +7,24 @@
   :root {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-
     --radius: 0.5rem;
-
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -47,6 +37,7 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 
   * {
@@ -57,18 +48,19 @@
     @apply bg-nexus-dark text-white font-['Inter',sans-serif];
     background: linear-gradient(135deg, #1a1a2e 0%, #100f1c 50%, #2a2a3e 100%);
     min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
   }
+}
 
+@layer components {
   .gradient-text {
     @apply bg-gradient-to-r from-nexus-purple to-nexus-violet bg-clip-text text-transparent;
-  }
-
-  .hover-scale {
-    @apply transition-transform duration-100 hover:scale-105;
   }
 
   .glass-effect {
@@ -76,15 +68,45 @@
   }
 
   .nexus-card {
-    @apply bg-nexus-light/50 border border-white/10 rounded-lg p-6 hover:bg-nexus-light/60 transition-colors duration-100;
+    @apply bg-nexus-light/50 border border-white/10 rounded-lg p-6 hover:bg-nexus-light/60 transition-colors duration-150;
   }
 
   .nexus-button {
-    @apply bg-purple-gradient text-white font-medium py-3 px-6 rounded-lg hover:scale-105 transition-transform duration-100 shadow-lg;
+    @apply bg-purple-gradient text-white font-medium py-3 px-6 rounded-lg hover:scale-105 transition-transform duration-150 shadow-lg;
   }
 
   .nexus-input {
     @apply bg-nexus-light/50 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-nexus-purple focus:ring-2 focus:ring-nexus-purple/20 transition-all duration-200;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-nexus-purple;
+  }
+
+  .skeleton {
+    @apply animate-pulse bg-nexus-light/30 rounded;
+  }
+
+  .agent-card {
+    @apply bg-gradient-to-br from-slate-800/80 to-slate-700/60 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-purple-500/20;
+  }
+
+  .agent-button {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-purple-500/30 active:translate-y-0;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .toast-enter {
+    @apply animate-slide-in-right;
+  }
+
+  .toast-exit {
+    @apply animate-fade-out;
   }
 }
 
@@ -106,93 +128,11 @@
   background: #9d4edd;
 }
 
-/* Loading animations */
-.loading-spinner {
-  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-nexus-purple;
-}
-
-.skeleton {
-  @apply animate-pulse bg-nexus-light/30 rounded;
-}
-
-/* Loader for Spline */
-.loader {
-  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-nexus-purple;
-}
-
-/* Toast animations */
-.toast-enter {
-  @apply animate-slide-in-right;
-}
-
-.toast-exit {
-  @apply animate-fade-out;
-}
-
-/* Smooth section transitions - otimizado */
-section {
-  will-change: auto;
-}
-
-/* Animação fade-in simplificada */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Otimização para scroll suave */
-html {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-body {
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Loading Animation */
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(139, 92, 246, 0.3);
-  border-top: 3px solid #8b5cf6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-/* Agent Card Styles - otimizado para performance */
-.agent-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  will-change: transform;
-}
-
-.agent-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
-}
-
-/* Efeitos otimizados para botões dos agentes */
-.agent-button {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  will-change: transform;
-}
-
-.agent-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.agent-button:active {
-  transform: translateY(0);
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

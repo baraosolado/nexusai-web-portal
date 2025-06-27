@@ -20,9 +20,14 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    cssCodeSplit: true,
+    minify: 'terser',
     rollupOptions: {
       external: ['@splinetool/runtime'],
       output: {
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
         manualChunks: (id) => {
           // Separa todas as dependências do Spline em chunks separados
           if (id.includes('@splinetool/react-spline')) {
@@ -73,6 +78,6 @@ export default defineConfig(({ mode }) => ({
         }
       }
     },
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 600,
   },
 }));
