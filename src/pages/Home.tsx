@@ -292,7 +292,7 @@ const Home: React.FC = () => {
               console.log(JSON.stringify(webhookResponse, null, 2));
               console.log('========================');
 
-              const agentMessages = extractMessages(webhookResponse);
+              agentMessages = extractMessages(webhookResponse);
               console.log('=== MENSAGENS EXTRAÍDAS ===');
               console.log('Resultado da extração:', agentMessages);
               console.log('========================');
@@ -313,10 +313,12 @@ const Home: React.FC = () => {
 
         console.log('=== MENSAGENS FINAIS ===');
         console.log('Mensagens que serão exibidas:', agentMessages);
+        console.log('Quantidade de mensagens:', agentMessages.length);
         console.log('========================');
 
         // Adicionar todas as mensagens do bot, uma por vez com delay entre elas
         setTimeout(() => {
+          console.log('Iniciando processamento de', agentMessages.length, 'mensagens');
           agentMessages.forEach((message, index) => {
             setTimeout(() => {
               const messageId = Date.now() + index * 1000 + Math.random() * 100; // ID único para cada mensagem
@@ -463,22 +465,34 @@ const Home: React.FC = () => {
                 console.log('Resposta bruta do webhook para áudio:', responseText);
 
                 let webhookResponse;
+                let agentMessages: string[] = [];
+                
                 try {
-                  webhookResponse = JSON.parse(responseText);
-                } catch (parseError) {
-                  console.error('Erro ao fazer parse do JSON para áudio:', parseError);
-                  throw new Error('Resposta inválida do servidor para áudio');
+                  if (responseText.trim()) {
+                    try {
+                      webhookResponse = JSON.parse(responseText);
+                      console.log('Resposta parseada do webhook para áudio:', webhookResponse);
+                      
+                      agentMessages = extractMessages(webhookResponse);
+                      console.log('Mensagens de áudio extraídas do agente:', agentMessages);
+                    } catch (parseError) {
+                      console.log('Não foi possível fazer parse do JSON para áudio, usando texto diretamente:', responseText);
+                      agentMessages = [responseText.trim()];
+                    }
+                  } else {
+                    agentMessages = ["Recebi seu áudio! Em breve responderemos."];
+                  }
+                } catch (error) {
+                  console.error('Erro ao processar resposta de áudio:', error);
+                  agentMessages = ["Recebi seu áudio! Nossa equipe verificará e responderá em breve."];
                 }
-
-                console.log('Resposta parseada do webhook para áudio:', webhookResponse);
-
-                const agentMessages = extractMessages(webhookResponse);
-                console.log('Mensagens de áudio extraídas do agente:', agentMessages);
 
                 if (agentMessages && agentMessages.length > 0) {
                   console.log('Adicionando respostas válidas de áudio do bot:', agentMessages);
+                  console.log('Quantidade de mensagens de áudio:', agentMessages.length);
 
                   setTimeout(() => {
+                    console.log('Iniciando processamento de', agentMessages.length, 'mensagens de áudio');
                     agentMessages.forEach((message, index) => {
                       setTimeout(() => {
                         const messageId = Date.now() + index * 1000 + Math.random() * 100; // ID único para cada mensagem
