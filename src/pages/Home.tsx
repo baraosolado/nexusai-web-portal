@@ -77,7 +77,7 @@ const Home: React.FC = () => {
     // Se for array, processar todos os itens
     if (Array.isArray(response) && response.length > 0) {
       console.log('Resposta é array, processando todos os itens:', response);
-      
+
       for (let i = 0; i < response.length; i++) {
         const item = response[i];
         console.log(`Processando item ${i}:`, item);
@@ -328,15 +328,15 @@ const Home: React.FC = () => {
                 time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                 isUser: false
               };
-              
+
               console.log(`Nova mensagem do bot ${index + 1} criada e adicionada:`, newBotMessage);
-              
+
               setMessages(prev => {
                 const updatedMessages = [...prev, newBotMessage];
                 console.log(`Estado das mensagens após adicionar mensagem ${index + 1}:`, updatedMessages);
                 return updatedMessages;
               });
-              
+
               // Marcar como não esperando resposta apenas na última mensagem
               if (index === agentMessages.length - 1) {
                 setIsWaitingForResponse(false);
@@ -466,13 +466,13 @@ const Home: React.FC = () => {
 
                 let webhookResponse;
                 let agentMessages: string[] = [];
-                
+
                 try {
                   if (responseText.trim()) {
                     try {
                       webhookResponse = JSON.parse(responseText);
                       console.log('Resposta parseada do webhook para áudio:', webhookResponse);
-                      
+
                       agentMessages = extractMessages(webhookResponse);
                       console.log('Mensagens de áudio extraídas do agente:', agentMessages);
                     } catch (parseError) {
@@ -502,15 +502,15 @@ const Home: React.FC = () => {
                           time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                           isUser: false
                         };
-                        
+
                         console.log(`Nova mensagem de áudio do bot ${index + 1} criada e adicionada:`, newBotMessage);
-                        
+
                         setMessages(prev => {
                           const updatedMessages = [...prev, newBotMessage];
                           console.log('Estado completo das mensagens de áudio após adição:', updatedMessages);
                           return updatedMessages;
                         });
-                        
+
                         // Marcar como não esperando resposta apenas na última mensagem
                         if (index === agentMessages.length - 1) {
                           setIsWaitingForResponse(false);
@@ -786,7 +786,7 @@ const Home: React.FC = () => {
               description: 'Transforme a experiência de compra e venda de imóveis. Este agente gerencia listagens, organiza visitas e qualifica leads para corretores, aumentando a eficiência do negócio.'
             }, {
               name: 'Agente Advocacia',
-              type: 'advocacia',
+              type: 'advacia',
               icon: <Shield className="h-8 w-8" />,
               description: 'Aumente a produtividade do escritório jurídico. Este agente organiza casos, pesquisa jurisprudência e facilita a comunicação com clientes e documentação.'
             }, {
@@ -953,6 +953,21 @@ const Home: React.FC = () => {
                 </div>
               </div>
             ))}
+
+            {/* Indicador de digitação quando esperando resposta */}
+            {isWaitingForResponse && (
+              <div className="flex justify-start">
+                <div className="bg-nexus-light text-white rounded-lg p-3 max-w-[80%]">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                    <span className="text-xs text-gray-400 ml-2">Digitando...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
