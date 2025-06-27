@@ -78,8 +78,19 @@ const Home: React.FC = () => {
     if (Array.isArray(response) && response.length > 0) {
       console.log('Resposta é array, processando todos os itens:', response);
 
-      for (let i = 0; i < response.length; i++) {
-        const item = response[i];
+      // Primeiro, tentar ordenar por sequence_number se existir
+      const sortedResponse = [...response].sort((a, b) => {
+        if (a && typeof a === 'object' && a.sequence_number && 
+            b && typeof b === 'object' && b.sequence_number) {
+          return a.sequence_number - b.sequence_number;
+        }
+        return 0;
+      });
+
+      console.log('Array ordenado por sequence_number:', sortedResponse);
+
+      for (let i = 0; i < sortedResponse.length; i++) {
+        const item = sortedResponse[i];
         console.log(`Processando item ${i}:`, item);
 
         // Verificar se tem propriedade 'message'
@@ -342,7 +353,7 @@ const Home: React.FC = () => {
                 setIsWaitingForResponse(false);
                 console.log('Todas as mensagens do agente foram adicionadas ao chat');
               }
-            }, index * 1000); // Delay de 1 segundo entre cada mensagem para melhor visibilidade
+            }, index * 2000); // Delay de 2 segundos entre cada mensagem para melhor visibilidade
           });
         }, 500);
 
@@ -516,7 +527,7 @@ const Home: React.FC = () => {
                           setIsWaitingForResponse(false);
                           console.log('Todas as mensagens de áudio do agente foram adicionadas ao chat');
                         }
-                      }, index * 1000); // Delay de 1 segundo entre cada mensagem
+                      }, index * 2000); // Delay de 2 segundos entre cada mensagem
                     });
                   }, 500);
                 } else {
