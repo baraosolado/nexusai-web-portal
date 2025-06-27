@@ -1,27 +1,40 @@
+import { useState, useEffect, useRef, useCallback, ComponentType } from 'react'
 
-import { useState, useEffect, useRef } from 'react'
+const useLazySpline = () => {
+  const [SplineComponent, setSplineComponent] = useState<ComponentType<any> | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPreloaded, setIsPreloaded] = useState(false);
 
-export const useLazySpline = (threshold = 0.1) => {
-  const [shouldLoad, setShouldLoad] = useState(false)
-  const elementRef = useRef<HTMLDivElement>(null)
+  // Preload apenas quando o usuário mostrar intenção de interagir
+  const preloadSpline = useCallback(async () => {
+    if (isPreloaded || SplineComponent) return;
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldLoad(true)
-          observer.disconnect()
-        }
-      },
-      { threshold }
-    )
-
-    if (elementRef.current) {
-      observer.observe(elementRef.current)
+    setIsPreloaded(true);
+    try {
+      // Preload silencioso em background
+      await import('@splinetool/react-spline');
+    } catch (err) {
+      console.warn('Preload do Spline falhou:', err);
     }
+  }, [isPreloaded, SplineComponent]);
 
-    return () => observer.disconnect()
-  }, [threshold])
+  const loadSpline = useCallback(async () => {
+    if (SplineComponent || isLoading) return;
 
-  return { shouldLoad, elementRef }
-}
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { default: Spline } = await import('@splinetool/react-spline');
+      setSplineComponent(() => Spline);
+    } catch (err) {
+      console.error('Erro ao carregar Spline:', err);
+      setError('Falha ao carregar o componente 3D');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [SplineComponent, isLoading]);
+
+  return { SplineComponent, isLoading, error, loadSpline, preloadSpline };
+};

@@ -22,16 +22,55 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-accordion', '@radix-ui/react-alert-dialog'],
-          spline: ['@splinetool/react-spline', '@splinetool/runtime'],
-          framer: ['framer-motion'],
-          router: ['react-router-dom'],
-          utils: ['clsx', 'tailwind-merge', 'class-variance-authority']
+        manualChunks: (id) => {
+          // Separa todas as dependências do Spline em chunks separados
+          if (id.includes('@splinetool/react-spline')) {
+            return 'spline-react';
+          }
+          if (id.includes('@splinetool/runtime')) {
+            return 'spline-runtime';
+          }
+          
+          // Physics/3D libraries em chunk separado
+          if (id.includes('physics') || id.includes('cannon') || id.includes('ammo')) {
+            return 'physics-engine';
+          }
+          
+          // Bibliotecas de UI em chunks menores
+          if (id.includes('@radix-ui/react-dialog') || id.includes('@radix-ui/react-accordion')) {
+            return 'radix-core';
+          }
+          if (id.includes('@radix-ui')) {
+            return 'radix-ui';
+          }
+          
+          // Core React
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'react-vendor';
+          }
+          
+          // Router
+          if (id.includes('react-router')) {
+            return 'router';
+          }
+          
+          // Framer Motion
+          if (id.includes('framer-motion')) {
+            return 'animations';
+          }
+          
+          // Utilitários
+          if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) {
+            return 'utils';
+          }
+          
+          // Todas as outras dependências node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 800,
   },
 }));
