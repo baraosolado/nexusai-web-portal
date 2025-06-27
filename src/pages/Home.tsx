@@ -124,7 +124,7 @@ const Home: React.FC = () => {
         // Verificar se o item tem objetos numerados diretamente (novo formato atual)
         if (item && typeof item === 'object') {
           console.log(`Verificando objetos numerados no item ${i}:`, item);
-          
+
           const numberedMessages: {message: string, sequence_number: number}[] = [];
           let hasNumberedObjects = false;
 
@@ -790,6 +790,42 @@ const Home: React.FC = () => {
     label: 'Suporte Disponível'
   }];
 
+  // Hook para carregamento lazy do Spline
+  const useLazySpline = (threshold = 0.1) => {
+    const [shouldLoad, setShouldLoad] = useState(false);
+    const elementRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setShouldLoad(true);
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: threshold,
+        }
+      );
+
+      if (elementRef.current) {
+        observer.observe(elementRef.current);
+      }
+
+      return () => {
+        if (elementRef.current) {
+          observer.unobserve(elementRef.current);
+        }
+      };
+    }, [threshold]);
+
+    return { shouldLoad, elementRef };
+  };
+
+  const { shouldLoad: shouldLoadSpline, elementRef: splineRef } = useLazySpline(0.1);
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -835,11 +871,20 @@ const Home: React.FC = () => {
           {/* Right content - 3D Robot */}
           <div className="relative h-[500px] lg:h-[600px] flex items-end justify-center lg:justify-end">
             <div className="relative w-full max-w-[600px] h-[450px] lg:h-[550px]">
-              <div className="absolute inset-0 bottom-0">
-                <SplineScene 
-                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
-                  className="w-full h-full object-contain" 
-                />
+              <div ref={splineRef} className="absolute inset-0 bottom-0">
+                {shouldLoadSpline ? (
+                  <SplineScene 
+                    scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" 
+                    className="w-full h-full object-contain" 
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-nexus-dark to-nexus-darker flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="animate-pulse text-nexus-purple mb-4">⚡</div>
+                      <p className="text-gray-400">Carregando experiência 3D...</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
