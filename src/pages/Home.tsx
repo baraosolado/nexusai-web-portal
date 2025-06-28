@@ -1017,12 +1017,16 @@ const Home: React.FC = () => {
               sua empresa e impulsionar seus resultados.
             </p>
             <div className="flex justify-center">
-              <Link to="/agentes">
+              <a 
+                href="https://wa.me/5543996428227" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
                 <Button className="nexus-button text-lg px-8 py-4 group">
-                  Conhecer Soluções
+                  Saiba Mais
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
