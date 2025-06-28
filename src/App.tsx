@@ -55,6 +55,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
 const AppRoutes = () => {
   console.log('AppRoutes: Componente sendo renderizado');
+  
+  const HomeElement = () => {
+    console.log('AppRoutes: Renderizando rota Home');
+    return <Home />;
+  };
+  
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -66,12 +72,7 @@ const AppRoutes = () => {
     }>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={
-          <div>
-            {console.log('AppRoutes: Renderizando rota Home')}
-            <Home />
-          </div>
-        } />
+        <Route path="/" element={<HomeElement />} />
 
         {/* Legal Pages */}
         <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
