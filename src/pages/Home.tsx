@@ -1018,7 +1018,7 @@ const Home: React.FC = () => {
             </p>
             <div className="flex justify-center">
               <a 
-                href="https://wa.me/5543996428227" 
+                href="https://wa.me/5543999642827" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
