@@ -10,7 +10,10 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 console.log('App: Módulo App carregado, React:', typeof React);
 
 // Lazy load das páginas
-const Home = lazy(() => import("./pages/Home"));
+const Home = lazy(() => {
+  console.log('App: Carregando componente Home');
+  return import("./pages/Home");
+});
 const Index = lazy(() => import("./pages/Index"));
 const Agents = lazy(() => import("./pages/Agents"));
 const AgentDetail = lazy(() => import("./pages/AgentDetail"));
@@ -63,7 +66,12 @@ const AppRoutes = () => {
     }>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={
+          <div>
+            {console.log('AppRoutes: Renderizando rota Home')}
+            <Home />
+          </div>
+        } />
 
         {/* Legal Pages */}
         <Route path="/politica-de-privacidade" element={<PrivacyPolicy />} />
