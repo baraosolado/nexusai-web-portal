@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -21,7 +22,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     cssCodeSplit: true,
-    minify: 'terser',
+    minify: 'esbuild', // Changed from 'terser' to 'esbuild'
     rollupOptions: {
       external: ['@splinetool/runtime'],
       output: {
