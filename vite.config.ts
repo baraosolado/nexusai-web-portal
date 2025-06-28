@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     cssCodeSplit: true,
-    minify: 'esbuild', // Changed from 'terser' to 'esbuild'
+    minify: 'terser', // Voltando para terser agora que está instalado
     rollupOptions: {
       external: ['@splinetool/runtime'],
       output: {
