@@ -2,7 +2,7 @@
 'use client'
 
 import { useLazySpline } from '@/hooks/use-lazy-spline';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface SplineSceneProps {
   scene: string
@@ -12,20 +12,30 @@ interface SplineSceneProps {
 export const SplineScene = ({ scene, className }: SplineSceneProps) => {
   const { SplineComponent, isLoading, error, loadSpline } = useLazySpline();
   const [hasStartedLoading, setHasStartedLoading] = useState(false);
+  const mountedRef = useRef(true);
 
-  const handleLoadRequest = () => {
-    if (!hasStartedLoading) {
-      setHasStartedLoading(true);
-      loadSpline();
-    }
-  };
-
-  // Auto-load quando o componente é montado
   useEffect(() => {
-    handleLoadRequest();
-  }, []);
+    mountedRef.current = true;
+    
+    const handleLoadRequest = async () => {
+      if (!hasStartedLoading && mountedRef.current) {
+        console.log('SplineScene: Iniciando carregamento automático');
+        setHasStartedLoading(true);
+        await loadSpline();
+      }
+    };
+
+    // Pequeno delay para evitar carregamento imediato que pode causar problemas
+    const timeoutId = setTimeout(handleLoadRequest, 100);
+
+    return () => {
+      mountedRef.current = false;
+      clearTimeout(timeoutId);
+    };
+  }, []); // Array vazio para executar apenas uma vez
 
   if (error) {
+    console.log('SplineScene: Renderizando erro:', error);
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-900/20 to-red-800/20 rounded-lg">
         <div className="text-center">
@@ -37,6 +47,7 @@ export const SplineScene = ({ scene, className }: SplineSceneProps) => {
   }
 
   if (isLoading || !SplineComponent) {
+    console.log('SplineScene: Renderizando loading, isLoading:', isLoading, 'SplineComponent:', !!SplineComponent);
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg">
         <div className="flex flex-col items-center space-y-4">
@@ -47,6 +58,7 @@ export const SplineScene = ({ scene, className }: SplineSceneProps) => {
     );
   }
 
+  console.log('SplineScene: Renderizando componente Spline com scene:', scene);
   return (
     <SplineComponent
       scene={scene}
